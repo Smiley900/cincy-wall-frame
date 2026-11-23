@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cincy Wall Frame</title>
+<style>
+:root{color-scheme:dark;--bg:#0e0c0a;--matte:#17130f;--panel:#1e1913;--card:#251f18;--card2:#2c251c;--line:#3a3127;--ink:#f2e9dc;--ink2:#c4b6a3;--ink3:#8f816f;--amber:#d9a35b;--sage:#93ab8c;--rose:#cf8f7c;--sky:#8fb1c9;--plum:#b39ac4;--pad:max(16px,env(safe-area-inset-left));--padr:max(16px,env(safe-area-inset-right))}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hidden}
+body{font-family:"Figtree",system-ui,sans-serif;font-size:18px;line-height:1.35;user-select:none;-webkit-user-select:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.layer{position:fixed;inset:0;transition:opacity 1.2s ease}
+.hidden{opacity:0;pointer-events:none}
+/* painting mode */
+#paint{background:var(--matte);cursor:pointer}
+#paint .art{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 3s ease,filter 3s ease}
+#paint .art.on{opacity:1}
+#paint .vign{position:absolute;left:0;right:0;bottom:0;height:20%;background:linear-gradient(to top,rgba(10,8,6,.34),transparent);pointer-events:none}
+#paint .corner{position:absolute;right:var(--padr);bottom:max(18px,env(safe-area-inset-bottom));text-align:right;color:rgba(255,250,242,.94);text-shadow:0 1px 10px rgba(0,0,0,.75),0 0 2px rgba(0,0,0,.5);pointer-events:none}
+#paint .clock{font-family:"Fraunces",Georgia,serif;font-weight:300;font-size:clamp(28px,4.2vw,54px);letter-spacing:.5px;line-height:1}
+#paint .wx{font-size:clamp(13px,1.4vw,17px);margin-top:4px}
+#paint .cap{position:absolute;left:var(--pad);bottom:max(18px,env(safe-area-inset-bottom));max-width:55%;color:rgba(255,250,242,.8);font-size:clamp(12px,1.2vw,15px);text-shadow:0 1px 10px rgba(0,0,0,.8),0 0 2px rgba(0,0,0,.5);pointer-events:none;transition:opacity 2s}
+#paint .cap i{font-family:"Fraunces",Georgia,serif;font-style:italic;color:rgba(255,250,242,.94)}
+#paint .hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:14px 22px;border-radius:40px;background:rgba(14,12,10,.55);color:var(--ink2);font-size:16px;opacity:0;transition:opacity .6s;pointer-events:none}
+#paint .hint.show{opacity:1}
+/* browse */
+#browse{background:var(--matte);display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;gap:8px 14px;padding:10px var(--padr) 8px var(--pad);flex-wrap:wrap}
+.topbar .spacer{flex:1}
+.bclock{font-family:"Fraunces",Georgia,serif;font-size:24px;font-weight:400;color:var(--ink2);white-space:nowrap}
+.nowwx{display:flex;align-items:center;gap:8px;padding:0 14px;border-radius:14px;background:var(--panel);min-height:52px}
+.nowwx .ico{width:32px;height:32px}
+.nowwx b{font-family:"Fraunces",Georgia,serif;font-weight:400;font-size:26px}
+.nowwx span{color:var(--ink2);font-size:15px;max-width:150px;line-height:1.2}
+.done{min-height:52px;padding:0 18px;border-radius:14px;background:var(--panel);color:var(--ink2);display:flex;align-items:center;gap:8px}
+.done:active{background:var(--card2)}
+nav.tabs{display:flex;gap:8px;min-width:0;overflow-x:auto;scrollbar-width:none}
+nav.tabs button{min-height:52px;padding:0 20px;border-radius:14px;background:var(--panel);color:var(--ink2);font-size:19px;white-space:nowrap;flex:0 0 auto}
+nav.tabs button[aria-selected=true]{background:var(--amber);color:#1b140b;font-weight:600}
+.chips{display:flex;gap:8px;min-width:0;padding-left:14px;border-left:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.chips button{min-height:44px;padding:0 15px;border-radius:30px;border:1px solid var(--line);color:var(--ink2);font-size:16px;white-space:nowrap;flex:0 0 auto}
+.chips button[aria-pressed=true]{border-color:var(--ink2);color:var(--ink);background:var(--card)}
+@media (max-width:1700px){.nowwx span{display:none}}
+@media (max-width:1540px){.chips{order:9;flex:1 0 100%;padding-left:0;border-left:0}}
+@media (max-width:900px){.topbar .spacer{display:none}nav.tabs{order:8;flex:1 0 100%}.bclock{margin-right:auto}}
+main{flex:1;overflow-y:auto;padding:0 var(--padr) 28px var(--pad);-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.day{margin:4px 0 20px}
+.dayh{display:flex;align-items:baseline;gap:12px;margin:0 2px 8px;position:sticky;top:0;background:linear-gradient(var(--matte) 75%,transparent);padding:4px 0 8px;z-index:1}
+.dayh h2{font-family:"Fraunces",Georgia,serif;font-weight:400;font-size:26px;margin:0}
+.dayh .dw{color:var(--ink2);font-size:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:10px}
+.ev{display:flex;gap:14px;padding:14px 16px;border-radius:16px;background:var(--card);min-height:78px;align-items:flex-start}
+.ev .t{flex:0 0 82px;font-variant-numeric:tabular-nums;color:var(--amber);font-size:18px;padding-top:2px}
+.ev .t.na{color:var(--ink3)}
+.ev .b{min-width:0;flex:1}
+.ev .ti{font-size:20px;font-weight:600;line-height:1.25;overflow-wrap:anywhere}
+.ev .v{color:var(--ink2);font-size:16.5px;margin-top:3px}
+.ev .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.tag{font-size:13.5px;padding:3px 9px;border-radius:20px;background:var(--card2);color:var(--ink2);display:inline-flex;align-items:center;gap:6px}
+.tag .dot{width:8px;height:8px;border-radius:50%}
+.tag.free{color:#1b140b;background:var(--sage);font-weight:600}
+.more{display:block;width:100%;min-height:56px;margin-top:10px;border-radius:14px;border:1px dashed var(--line);color:var(--ink2)}
+.empty{color:var(--ink3);padding:30px 4px;font-size:18px}
+.foot{color:var(--ink3);font-size:13px;margin-top:18px;line-height:1.5}
+/* weather */
+.wxnow{display:flex;gap:22px;align-items:center;background:var(--card);border-radius:20px;padding:20px 22px;margin:10px 0 16px;flex-wrap:wrap}
+.wxnow .big{font-family:"Fraunces",Georgia,serif;font-size:64px;font-weight:300;line-height:1}
+.wxnow .d{font-size:20px}
+.wxnow .s{color:var(--ink2);font-size:15px;margin-top:4px}
+.wxrow{display:grid;grid-template-columns:120px 44px 1fr minmax(90px,150px) 64px;gap:14px;align-items:center;padding:12px 16px;border-radius:14px;background:var(--card);margin-bottom:8px;min-height:64px}
+.wxrow .dn{font-size:18px}.wxrow .dn small{display:block;color:var(--ink3);font-size:13px}
+.wxrow .ds{color:var(--ink2);font-size:15px}
+.wxrow .rain{color:var(--sky);font-size:15px;text-align:right}
+.bar{position:relative;height:8px;border-radius:8px;background:var(--card2)}
+.bar i{position:absolute;top:0;bottom:0;border-radius:8px;background:linear-gradient(90deg,var(--sky),var(--amber))}
+.bar span{position:absolute;top:-22px;font-size:14px;color:var(--ink2);transform:translateX(-50%)}
+.ico{width:40px;height:40px}
+.wxh-t{font-size:15px;color:var(--ink2);margin:4px 2px 8px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.wxh-t span{color:var(--ink3);font-size:13.5px}
+.wxh{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px;margin-bottom:10px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.hc{flex:0 0 76px;scroll-snap-align:start;background:var(--card);border-radius:16px;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;min-height:132px}
+.hc.now{background:var(--card2);outline:1px solid var(--line)}
+.hc.mid{box-shadow:inset 2px 0 0 var(--line)}
+.hc .ht{font-size:14px;color:var(--ink2);text-align:center;line-height:1.15;min-height:32px}
+.hc .ht small{display:block;color:var(--ink3);font-size:12px}
+.hc .hv{font-family:"Fraunces",Georgia,serif;font-size:24px;font-weight:400}
+.hc .hr{color:var(--sky);font-size:13.5px;min-height:16px}
+.hc .ico{width:34px;height:34px}
+@media (max-width:620px){
+ .hc{flex-basis:64px;min-height:120px}
+ .hc .hv{font-size:21px}
+ body{font-size:16px}
+ .wxrow{grid-template-columns:72px 34px 1fr 52px;gap:10px}
+ .wxrow .barc{display:none}
+ .ico{width:32px;height:32px}
+ .ev .t{flex-basis:62px}
+ nav.tabs button{padding:0 16px;font-size:17px}
+}
+/* night */
+#night{background:#000;cursor:pointer}
+#night .n{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#2a241d;font-size:15px;opacity:0;transition:opacity 1s}
+#night .n.show{opacity:1}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,400&display=swap">
+</head>
+<body>
+<div id="paint" class="layer" role="button" aria-label="Tap to see what's on in Cincinnati">
+  <div class="art"></div><div class="art"></div>
+  <div class="vign"></div>
+  <div class="cap" id="cap"></div>
+  <div class="corner"><div class="clock" id="pclock"></div><div class="wx" id="pwx"></div></div>
+  <div class="hint" id="hint">Tap for what's on</div>
+</div>
+
+<div id="browse" class="layer hidden" aria-hidden="true">
+  <div class="topbar">
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-tab="today" aria-selected="true">Today</button>
+      <button role="tab" data-tab="weekend" aria-selected="false">This weekend</button>
+      <button role="tab" data-tab="week" aria-selected="false">Next 7 days</button>
+      <button role="tab" data-tab="weather" aria-selected="false">Weather</button>
+    </nav>
+    <div class="chips" id="chips">
+      <button data-f="all" aria-pressed="true">Everything</button>
+      <button data-f="music" aria-pressed="false">Live music</button>
+      <button data-f="free" aria-pressed="false">Free</button>
+      <button data-f="holiday" aria-pressed="false">Holiday &amp; family</button>
+      <button data-f="stage" aria-pressed="false">Theater &amp; comedy</button>
+    </div>
+    <div class="spacer"></div>
+    <div class="bclock" id="bdate"></div>
+    <div class="nowwx" id="bnow"></div>
+    <button class="done" id="toPaint" aria-label="Back to painting">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/></svg>Painting</button>
+  </div>
+  <main id="list"></main>
+</div>
+
+<div id="night" class="layer hidden" aria-hidden="true"><div class="n" id="nmsg">Sleeping until 7 · tap to peek</div></div>
+
+<script>
+function startFrame(){
+"use strict";
+var CONFIG={rotateMinutes:5,idleSeconds:90,nightStart:23,nightEnd:7,eveningStart:19,dayDim:1,eveningDim:0.6,peekSeconds:60,tz:"America/New_York"};
+var DATA=window.__FRAME_DATA__;
+var $=function(id){return document.getElementById(id)};
+var CAT={music:["Music","var(--amber)"],holiday:["Holiday","var(--rose)"],theater:["Theater","var(--plum)"],comedy:["Comedy","var(--plum)"],family:["Family","var(--sage)"],art:["Art","var(--sky)"],film:["Film","var(--sky)"]};
+var DOW=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+var fmt=new Intl.DateTimeFormat("en-US",{timeZone:CONFIG.tz,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:false,weekday:"short"});
+function now(){var p={};fmt.formatToParts(new Date()).forEach(function(x){p[x.type]=x.value});var h=+p.hour%24;
+  var iso=p.year+"-"+p.month+"-"+p.day;return{iso:iso,h:h,m:+p.minute,mins:h*60+ +p.minute,dow:dowOf(iso)}}
+function dowOf(iso){var a=iso.split("-");return new Date(Date.UTC(+a[0],a[1]-1,+a[2])).getUTCDay()}
+function addDays(iso,n){var a=iso.split("-");var d=new Date(Date.UTC(+a[0],a[1]-1,+a[2]+n));return d.toISOString().slice(0,10)}
+function niceDate(iso,long){var a=iso.split("-");return (long?DOW:DOW.map(function(d){return d.slice(0,3)}))[dowOf(iso)]+", "+MON[a[1]-1]+" "+(+a[2])}
+function clock(n){var h=n.h%12||12;return h+":"+(n.m<10?"0":"")+n.m}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+
+/* ---------- modes ---------- */
+var mode="paint",idleT=null,peek=false;
+function show(m){mode=m;["paint","browse","night"].forEach(function(id){var el=$(id),on=id===m;el.classList.toggle("hidden",!on);el.setAttribute("aria-hidden",on?"false":"true")});
+  if(m==="browse"){render();$("list").scrollTop=0}armIdle()}
+function isNight(n){return n.h>=CONFIG.nightStart||n.h<CONFIG.nightEnd}
+function armIdle(){clearTimeout(idleT);if(mode!=="browse")return;
+  idleT=setTimeout(function(){peek=false;show(isNight(now())?"night":"paint")},(peek?CONFIG.peekSeconds:CONFIG.idleSeconds)*1000)}
+["pointerdown","keydown","wheel","touchstart"].forEach(function(ev){document.addEventListener(ev,function(){armIdle();wake()},{passive:true})});
+$("list").addEventListener("scroll",armIdle,{passive:true});
+$("paint").addEventListener("click",function(){show("browse")});
+$("toPaint").addEventListener("click",function(e){e.stopPropagation();show(isNight(now())?"night":"paint")});
+$("night").addEventListener("click",function(){peek=true;show("browse")});
+
+/* ---------- painting ---------- */
+var arts=DATA.art||[],ai=Math.floor(Math.random()*Math.max(1,arts.length)),slot=0;
+function dimLevel(n){return n.h>=CONFIG.eveningStart||n.h<CONFIG.nightEnd?CONFIG.eveningDim:CONFIG.dayDim}
+function paintNext(){if(!arts.length)return;var a=arts[ai%arts.length];ai++;
+  var els=document.querySelectorAll("#paint .art"),el=els[slot],other=els[1-slot];slot=1-slot;
+  var img=new Image();img.onload=function(){el.style.backgroundImage="url('"+a.file+"')";applyDim();el.classList.add("on");other.classList.remove("on")};img.src=a.file;
+  $("cap").innerHTML="<i>"+esc(a.title)+"</i>, "+esc(a.artist)+", "+esc(a.year)}
+function applyDim(){var d=dimLevel(now()),f=d<1?"brightness("+d+") saturate(.92)":"none";document.querySelectorAll("#paint .art").forEach(function(e){e.style.filter=f})}
+paintNext();setInterval(paintNext,CONFIG.rotateMinutes*60000);
+
+/* ---------- clock & night ---------- */
+function tick(){var n=now();$("pclock").textContent=clock(n);
+  $("bdate").textContent=clock(n)+(n.h<12?" AM":" PM");
+  var w=DATA.weather,td=todayWx(n.iso);
+  $("pwx").textContent=td?(td.hi+"° / "+td.lo+"°  ·  "+td.desc):(w&&w.now&&n.iso===(w.updated||"").slice(0,10)?w.now.temp+"° · "+w.now.desc:"");
+  if(isNight(n)&&mode==="paint")show("night");
+  if(!isNight(n)&&mode==="night")show("paint");
+  applyDim()}
+function todayWx(iso){var d=(DATA.weather&&DATA.weather.days)||[];for(var i=0;i<d.length;i++)if(d[i].date===iso)return d[i];return null}
+setInterval(tick,15000);
+
+/* ---------- browse ---------- */
+var tab="today",filt="all",expanded={};
+document.querySelectorAll("nav.tabs button").forEach(function(b){b.addEventListener("click",function(){tab=b.dataset.tab;
+  document.querySelectorAll("nav.tabs button").forEach(function(x){x.setAttribute("aria-selected",x===b?"true":"false")});
+  $("chips").style.display=tab==="weather"?"none":"flex";render();$("list").scrollTop=0})});
+document.querySelectorAll("#chips button").forEach(function(b){b.addEventListener("click",function(){filt=b.dataset.f;
+  document.querySelectorAll("#chips button").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false")});render()})});
+function pass(e){if(filt==="all")return true;if(filt==="music")return e.cat==="music";if(filt==="free")return e.tier==="FREE";
+  if(filt==="holiday")return e.cat==="holiday"||e.cat==="family";if(filt==="stage")return e.cat==="theater"||e.cat==="comedy";return true}
+function range(n){if(tab==="today")return[n.iso];
+  if(tab==="week"){var r=[];for(var i=0;i<7;i++)r.push(addDays(n.iso,i));return r}
+  var start=n.dow===0?5:(n.dow>=5?-(n.dow-5):5-n.dow);var out=[];for(var j=0;j<3;j++){var d=addDays(n.iso,start+j);if(d>=n.iso)out.push(d)}return out}
+function evHTML(e){var c=CAT[e.cat]||CAT.music;
+  var src=e.src==="gig"?"Gig list":e.src==="both"?"Now That's Cincy · Gig list":"Now That's Cincy";
+  return '<div class="ev"><div class="t'+(e.time?"":" na")+'">'+(e.time?esc(e.time.replace(":00 "," ")):"See venue")+'</div><div class="b"><div class="ti">'+esc(e.title)+'</div><div class="v">'+esc(e.venue)+(e.genre?" · "+esc(e.genre):"")+'</div><div class="tags">'+
+   (e.tier==="FREE"?'<span class="tag free">Free</span>':"")+'<span class="tag"><span class="dot" style="background:'+c[1]+'"></span>'+c[0]+'</span><span class="tag">'+src+'</span></div></div></div>'}
+function render(){var n=now(),L=$("list");
+  if(tab==="weather"){L.innerHTML=weatherHTML(n);return}
+  var days=range(n),html="",total=0,lastDate=(DATA.events.length?DATA.events[DATA.events.length-1].date:"");
+  days.forEach(function(d){var evs=DATA.events.filter(function(e){return e.date===d&&pass(e)});
+    if(d===n.iso)evs=evs.filter(function(e){return!e.time||e.sort>=n.mins-90});
+    total+=evs.length;var w=todayWx(d);
+    var cap=tab==="today"?evs.length:12,key=tab+d,shown=expanded[key]?evs:evs.slice(0,cap);
+    html+='<section class="day"><div class="dayh"><h2>'+(d===n.iso?"Today · ":"")+esc(niceDate(d,true))+'</h2>'+(w?'<span class="dw">'+w.hi+'° / '+w.lo+'° · '+esc(w.desc)+'</span>':"")+'</div>';
+    html+=evs.length?'<div class="grid">'+shown.map(evHTML).join("")+'</div>':'<div class="empty">Nothing listed'+(d>lastDate?" yet. This day isn't in the latest update.":" for this filter.")+'</div>';
+    if(shown.length<evs.length)html+='<button class="more" data-k="'+key+'">Show '+(evs.length-shown.length)+' more</button>';
+    html+='</section>'});
+  if(tab==="weekend"&&days.length)html='<div class="foot" style="margin-top:4px">'+esc(niceDate(days[0])+" to "+niceDate(days[days.length-1]))+'</div>'+html;
+  html+='<div class="foot">Events from Now That\'s Cincinnati and your Cincy gig list, read '+esc(DATA.events_read)+'. Times can change, so check with the venue before you go.</div>';
+  L.innerHTML=html;
+  L.querySelectorAll(".more").forEach(function(b){b.addEventListener("click",function(){expanded[b.dataset.k]=true;var y=L.scrollTop;render();L.scrollTop=y})})}
+function icon(desc,night){desc=(desc||"").toLowerCase();var s='<svg class="ico" viewBox="0 0 40 40" fill="none" stroke-width="2" stroke-linecap="round">';
+  if(night&&/clear|sunny/.test(desc)&&!/cloud|overcast/.test(desc))return s+'<path d="M26 27a10 10 0 0 1-9-17 11 11 0 1 0 13 13 10 10 0 0 1-4 4z" stroke="#d9c9a0"/></svg>';
+  var cloud='<path d="M12 28h16a6 6 0 0 0 0-12 8 8 0 0 0-15.5 2A5 5 0 0 0 12 28z" stroke="#c4b6a3"/>';
+  if(/rain|sprinkle|shower/.test(desc))return s+cloud+'<path d="M15 32l-1 3M21 32l-1 3M27 32l-1 3" stroke="#8fb1c9"/></svg>';
+  if(/sunny|clear/.test(desc)&&!/cloud|overcast/.test(desc))return s+'<circle cx="20" cy="20" r="7" stroke="#d9a35b"/><path d="M20 5v4M20 31v4M5 20h4M31 20h4M9.4 9.4l2.8 2.8M27.8 27.8l2.8 2.8M9.4 30.6l2.8-2.8M27.8 12.2l2.8-2.8" stroke="#d9a35b"/></svg>';
+  if(/partly|afternoon clouds/.test(desc))return s+'<circle cx="15" cy="15" r="5" stroke="#d9a35b"/><path d="M14 30h14a5 5 0 0 0 0-10 7 7 0 0 0-13 1.5A4.3 4.3 0 0 0 14 30z" stroke="#c4b6a3"/></svg>';
+  return s+cloud+'</svg>'}
+function hr12(x){return (x%12||12)+(x<12?" AM":" PM")}
+function hourlyHTML(n,w){var hs=w.hours||[];var key=n.iso+"T"+(n.h<10?"0":"")+n.h;
+  var list=hs.filter(function(x){return x.t>=key}).slice(0,24),c="";
+  var recent=w.updated&&(Date.now()-Date.parse(w.updated))<3*3600000;
+  var addNow=recent&&w.now&&(!list.length||list[0].t!==key);if(addNow)list=list.slice(0,23);
+  if(addNow)c+='<div class="hc now"><div class="ht">Now</div>'+icon(w.now.desc,n.h>=18||n.h<8)+'<div class="hv">'+w.now.temp+'°</div><div class="hr"></div></div>';
+  list.forEach(function(x,i){var hh=+x.t.slice(11,13),d=x.t.slice(0,10);
+    var lab=(x.t===key)?"Now":hr12(hh);var day=(hh===0||(i===0&&d!==n.iso))?'<small>'+DOW[dowOf(d)].slice(0,3)+'</small>':'';
+    c+='<div class="hc'+(x.t===key?' now':'')+(hh===0?' mid':'')+'"><div class="ht">'+lab+day+'</div>'+icon(x.desc,hh>=18||hh<8)+'<div class="hv">'+x.temp+'°</div><div class="hr">'+(x.rain>=20?x.rain+'%':'')+'</div></div>'});
+  if(!c)return '<div class="wxh-t">Hour by hour</div><div class="empty">The hourly forecast needs an update.</div>';
+  var cnt=(c.match(/class="hc/g)||[]).length;
+  return '<div class="wxh-t">Hour by hour<span>Next '+cnt+' hours · % is chance of rain</span></div><div class="wxh" aria-label="Hourly forecast">'+c+'</div>'}
+function weatherHTML(n){var w=DATA.weather;if(!w)return'<div class="empty">No weather yet.</div>';
+  var days=w.days.filter(function(d){return d.date>=n.iso});var t=todayWx(n.iso),h="";
+  var fresh=n.iso===(w.updated||"").slice(0,10);
+  h+='<div class="wxnow">'+icon(fresh?w.now.desc:(t?t.desc:""))+'<div><div class="big">'+(fresh?w.now.temp:(t?t.hi:"--"))+'°</div></div><div><div class="d">'+esc(fresh?w.now.desc:(t?t.desc:""))+'</div><div class="s">'+(t?"High "+t.hi+"° · Low "+t.lo+"° · ":"")+'Sunrise '+esc(w.sunrise)+' · Sunset '+esc(w.sunset)+'</div></div></div>';
+  h+=hourlyHTML(n,w);
+  if(!days.length)return h+'<div class="empty">The forecast needs an update.</div>';
+  var lo=Math.min.apply(null,days.map(function(d){return d.lo})),hi=Math.max.apply(null,days.map(function(d){return d.hi})),sp=Math.max(1,hi-lo);
+  days.slice(0,8).forEach(function(d){var l=(d.lo-lo)/sp*100,r=(d.hi-lo)/sp*100;
+    h+='<div class="wxrow"><div class="dn">'+(d.date===n.iso?"Today":DOW[dowOf(d.date)].slice(0,3))+'<small>'+esc(niceDate(d.date).split(", ")[1])+'</small></div>'+icon(d.desc)+'<div class="ds">'+esc(d.desc)+'</div><div class="barc"><div class="bar"><i style="left:'+l+'%;right:'+(100-r)+'%"></i></div></div><div class="rain">'+d.lo+'°/'+d.hi+'°<br>'+(d.rain>=20?d.rain+"% rain":"")+'</div></div>'});
+  var u=new Date(w.updated);h+='<div class="foot">Forecast from '+esc(w.source)+', updated '+esc(u.toLocaleString("en-US",{timeZone:CONFIG.tz,weekday:"short",hour:"numeric",minute:"2-digit"}))+'.</div>';
+  return h}
+function nowChip(){var n=now(),w=DATA.weather,t=todayWx(n.iso),fresh=w&&n.iso===(w.updated||"").slice(0,10);
+  $("bnow").innerHTML=icon(fresh?w.now.desc:(t?t.desc:""))+'<b>'+(fresh?w.now.temp:(t?t.hi:"--"))+'°</b><span>'+esc(fresh?w.now.desc:(t?t.desc:""))+'</span>'}
+
+/* ---------- fresh data ---------- */
+function refresh(){if(!window.fetch)return;fetch("data.json?v="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(d){
+  if(d&&d.events&&d.version&&d.version>DATA.version){DATA=d;arts=d.art||arts;if(mode==="browse")render();nowChip();tick()}}).catch(function(){})}
+setInterval(refresh,30*60000);setTimeout(refresh,4000);
+
+/* ---------- keep screen on while open ---------- */
+var lock=null;function wake(){try{if(navigator.wakeLock&&!lock&&document.visibilityState==="visible")navigator.wakeLock.request("screen").then(function(l){lock=l;l.addEventListener("release",function(){lock=null})}).catch(function(){})}catch(e){}}
+document.addEventListener("visibilitychange",wake);
+
+/* first-run hint */
+setTimeout(function(){$("hint").classList.add("show");setTimeout(function(){$("hint").classList.remove("show")},3500)},1500);
+nowChip();tick();if(isNight(now()))show("night");
+setInterval(function(){var n=now();if(mode==="night")$("nmsg").classList.remove("show")},60000);
+$("night").addEventListener("pointerdown",function(){},{passive:true});
+}
+</script>
+<script>
+/* Load data.json, keep the last good copy on the device, then start the frame. */
+(function(){
+  var KEY="cincy-frame-data",started=false;
+  function start(d){if(started||!d||!d.events)return;started=true;window.__FRAME_DATA__=d;startFrame()}
+  function cached(){try{return JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){return null}}
+  function load(){fetch("data.json?v="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){
+      try{localStorage.setItem(KEY,JSON.stringify(d))}catch(e){}start(d)}).catch(function(){start(cached());if(!started)setTimeout(load,30000)})}
+  load();
+})();
+</script>
+</body>
+</html>
