@@ -124,10 +124,10 @@ main{flex:1;overflow-y:auto;padding:0 var(--padr) 28px var(--pad);-webkit-overfl
     </nav>
     <div class="chips" id="chips">
       <button data-f="all" aria-pressed="true">Everything</button>
-      <button data-f="music" aria-pressed="false">Live music</button>
-      <button data-f="free" aria-pressed="false">Free</button>
-      <button data-f="holiday" aria-pressed="false">Holiday &amp; family</button>
-      <button data-f="stage" aria-pressed="false">Theater &amp; comedy</button>
+      <button data-f="gig" aria-pressed="false">Gig list</button>
+      <button data-f="ntc" aria-pressed="false">Now That's Cincy</button>
+      <button data-f="music" aria-pressed="false">Music</button>
+      <button data-f="other" aria-pressed="false">Not music</button>
     </div>
     <div class="spacer"></div>
     <div class="bclock" id="bdate"></div>
@@ -199,8 +199,8 @@ document.querySelectorAll("nav.tabs button").forEach(function(b){b.addEventListe
   $("chips").style.display=tab==="weather"?"none":"flex";render();$("list").scrollTop=0;if(tab==="weather")wxMaybe(CONFIG.weatherTapSeconds)})});
 document.querySelectorAll("#chips button").forEach(function(b){b.addEventListener("click",function(){filt=b.dataset.f;
   document.querySelectorAll("#chips button").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false")});render()})});
-function pass(e){if(filt==="all")return true;if(filt==="music")return e.cat==="music";if(filt==="free")return e.tier==="FREE";
-  if(filt==="holiday")return e.cat==="holiday"||e.cat==="family";if(filt==="stage")return e.cat==="theater"||e.cat==="comedy";return true}
+function pass(e){if(filt==="gig")return e.src==="gig"||e.src==="both";if(filt==="ntc")return e.src==="ntc"||e.src==="both";
+  if(filt==="music")return e.cat==="music";if(filt==="other")return e.cat!=="music";return true}
 function range(n){if(tab==="today")return[n.iso];
   if(tab==="week"){var r=[];for(var i=0;i<7;i++)r.push(addDays(n.iso,i));return r}
   var start=n.dow===0?5:(n.dow>=5?-(n.dow-5):5-n.dow);var out=[];for(var j=0;j<3;j++){var d=addDays(n.iso,start+j);if(d>=n.iso)out.push(d)}return out}
