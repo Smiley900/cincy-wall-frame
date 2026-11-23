@@ -1,0 +1,9 @@
+{
+ "_about": "Hand decisions that override the rules in build_data.py. Keys in items are '<venue as listed>|<title as listed>', lower case. Fields: show (true/false), cat (music, holiday, theater, comedy, family, art, film), title, venue.",
+ "hide": [],
+ "items": {
+  "sacred mondays|a night of brutality: scumbag, anatomize, suspectum, pigtusk, pprophecies foretold": {
+   "show": false
+  }
+ }
+}
