@@ -4,6 +4,19 @@
  "items": {
   "sacred mondays|a night of brutality: scumbag, anatomize, suspectum, pigtusk, pprophecies foretold": {
    "show": false
+  },
+  "the mercantile library|short story club": {
+   "show": false
+  },
+  "muse cafe|muse sings the blues presents a special christmas show - sela foster trio": {
+   "show": true,
+   "cat": "music"
+  },
+  "behringer-crawford museum|hills of kentucky dulcimers perfomance": {
+   "cat": "music"
+  },
+  "memorial hall|new legacy ensemble theatre: homegirl holiday": {
+   "cat": "theater"
   }
  }
 }
