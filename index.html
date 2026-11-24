@@ -161,7 +161,7 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return
 
 /* ---------- modes ---------- */
 var mode="paint",idleT=null,peek=false;
-function show(m){mode=m;["paint","browse","night"].forEach(function(id){var el=$(id),on=id===m;el.classList.toggle("hidden",!on);el.setAttribute("aria-hidden",on?"false":"true")});
+function show(m){if(m!=="browse"&&typeof pageStale!=="undefined"&&pageStale){location.reload();return}mode=m;["paint","browse","night"].forEach(function(id){var el=$(id),on=id===m;el.classList.toggle("hidden",!on);el.setAttribute("aria-hidden",on?"false":"true")});
   if(m==="browse"){render();$("list").scrollTop=0;wxMaybe(CONFIG.weatherTapSeconds)}armIdle()}
 function isNight(n){return n.h>=CONFIG.nightStart||n.h<CONFIG.nightEnd}
 function armIdle(){clearTimeout(idleT);if(mode!=="browse")return;
@@ -291,6 +291,14 @@ function wxFetch(){if(!window.fetch||wxBusy)return;wxBusy=true;
 function wxMaybe(maxAgeSeconds){if(Date.now()-wxAt>maxAgeSeconds*1000)wxFetch()}
 try{var sw=JSON.parse(localStorage.getItem("cincy-frame-wx")||"null");if(sw&&sw.days&&Date.now()-Date.parse(sw.updated)<12*3600000)DATA.weather=sw}catch(e){}
 wxFetch();setInterval(function(){if(mode!=="night")wxMaybe(CONFIG.weatherMinutes*60-30)},60000);
+
+/* ---------- pick up a new version of this page without anyone touching the frame ---------- */
+var pageSig=null,pageStale=false;
+function sigOf(t){var h=0;for(var i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0;return t.length+":"+h}
+function pageCheck(){if(!window.fetch)return;fetch(location.pathname+"?v="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.text():null}).then(function(t){
+  if(!t||t.indexOf("startFrame")<0)return;var g=sigOf(t);if(pageSig===null){pageSig=g;return}
+  if(g!==pageSig){pageStale=true;if(mode!=="browse")location.reload()}}).catch(function(){})}
+setTimeout(pageCheck,15000);setInterval(pageCheck,30*60000);
 
 /* ---------- keep screen on while open ---------- */
 var lock=null;function wake(){try{if(navigator.wakeLock&&!lock&&document.visibilityState==="visible")navigator.wakeLock.request("screen").then(function(l){lock=l;l.addEventListener("release",function(){lock=null})}).catch(function(){})}catch(e){}}
