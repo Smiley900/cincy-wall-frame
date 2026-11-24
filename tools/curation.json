@@ -32,6 +32,19 @@
   },
   "behringer-crawford museum|nky history hour:a milk can goes to market with charles bogart": {
    "cat": "family"
+  },
+  "main library downtown|cac artist in residence at the library: orion inez": {
+   "show": false
+  },
+  "plaid room records|record store day black friday": {
+   "cat": "music"
+  },
+  "spiral groove records|record store day ft. anna & the alibi": {
+   "cat": "music"
+  },
+  "cincinnati observatory|crash test asteroid": {
+   "show": true,
+   "cat": "family"
   }
  }
 }
