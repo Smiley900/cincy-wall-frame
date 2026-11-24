@@ -53,6 +53,12 @@ main{flex:1;overflow-y:auto;padding:0 var(--padr) 28px var(--pad);-webkit-overfl
 .tag .dot{width:8px;height:8px;border-radius:50%}
 .tag.free{color:#1b140b;background:var(--sage);font-weight:600}
 .more{display:block;width:100%;min-height:56px;margin-top:10px;border-radius:14px;border:1px dashed var(--line);color:var(--ink2)}
+.ev.bored{border:1px dashed var(--line);background:transparent;color:var(--ink);text-align:left;font:inherit;cursor:pointer;width:100%;align-items:center}
+.ev.bored:active{background:var(--card2)}
+.ev.bored .t{font-size:30px;line-height:1;color:var(--ink3);padding-top:0}
+.ev.bored .ti{font-family:"Fraunces",Georgia,serif;font-weight:400;font-style:italic;font-size:21px}
+.back{min-height:48px;padding:0 18px 0 12px;border-radius:14px;background:var(--card);color:var(--ink);font-size:17px;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);align-self:center}
+.back:active{background:var(--card2)}
 .empty{color:var(--ink3);padding:30px 4px;font-size:18px}
 .foot{color:var(--ink3);font-size:13px;margin-top:18px;line-height:1.5}
 /* weather */
@@ -169,7 +175,7 @@ function startFrame(){
 var CONFIG={rotateMinutes:5,idleSeconds:90,nightStart:23,nightEnd:7,eveningStart:19,dayDim:1,eveningDim:0.6,peekSeconds:60,tz:"America/New_York",lat:39.1031,lon:-84.512,weatherMinutes:15,weatherTapSeconds:120,dayWarmth:0,eveningWarmth:0.18};
 var DATA=window.__FRAME_DATA__;
 var $=function(id){return document.getElementById(id)};
-var CAT={music:["Music","var(--amber)"],holiday:["Holiday","var(--rose)"],theater:["Theater","var(--plum)"],comedy:["Comedy","var(--plum)"],family:["Family","var(--sage)"],art:["Art","var(--sky)"],film:["Film","var(--sky)"]};
+var CAT={music:["Music","var(--amber)"],holiday:["Holiday","var(--rose)"],theater:["Theater","var(--plum)"],comedy:["Comedy","var(--plum)"],family:["Family","var(--sage)"],art:["Art","var(--sky)"],film:["Film","var(--sky)"],other:["Other","var(--ink3)"]};
 var DOW=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 var fmt=new Intl.DateTimeFormat("en-US",{timeZone:CONFIG.tz,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:false,weekday:"short"});
 function now(){var p={};fmt.formatToParts(new Date()).forEach(function(x){p[x.type]=x.value});var h=+p.hour%24;
@@ -183,7 +189,7 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return
 /* ---------- modes ---------- */
 var mode="paint",idleT=null,peek=false;
 function show(m){if(m!=="browse"&&typeof pageStale!=="undefined"&&pageStale){location.reload();return}mode=m;["paint","browse","night"].forEach(function(id){var el=$(id),on=id===m;el.classList.toggle("hidden",!on);el.setAttribute("aria-hidden",on?"false":"true")});
-  qrClose();if(m==="browse"){render();$("list").scrollTop=0;wxMaybe(CONFIG.weatherTapSeconds)}armIdle()}
+  qrClose();if(m==="browse"){moreDay=null;render();$("list").scrollTop=0;wxMaybe(CONFIG.weatherTapSeconds)}armIdle()}
 function isNight(n){return n.h>=CONFIG.nightStart||n.h<CONFIG.nightEnd}
 function armIdle(){clearTimeout(idleT);if(mode!=="browse")return;
   idleT=setTimeout(function(){peek=false;show(isNight(now())?"night":"paint")},(peek?CONFIG.peekSeconds:CONFIG.idleSeconds)*1000)}
@@ -217,8 +223,8 @@ function todayWx(iso){var d=(DATA.weather&&DATA.weather.days)||[];for(var i=0;i<
 setInterval(tick,15000);
 
 /* ---------- browse ---------- */
-var tab="today",filt="all",expanded={};
-document.querySelectorAll("nav.tabs button").forEach(function(b){b.addEventListener("click",function(){tab=b.dataset.tab;
+var tab="today",filt="all",expanded={},moreDay=null,moreY=0;
+document.querySelectorAll("nav.tabs button").forEach(function(b){b.addEventListener("click",function(){tab=b.dataset.tab;moreDay=null;
   document.querySelectorAll("nav.tabs button").forEach(function(x){x.setAttribute("aria-selected",x===b?"true":"false")});
   $("chips").style.display=(tab==="weather"||tab==="eat")?"none":"flex";render();$("list").scrollTop=0;if(tab==="weather")wxMaybe(CONFIG.weatherTapSeconds)})});
 document.querySelectorAll("#chips button").forEach(function(b){b.addEventListener("click",function(){filt=b.dataset.f;
@@ -232,21 +238,31 @@ function evHTML(e){var c=CAT[e.cat]||CAT.music;
   var src=e.src==="gig"?"Gig list":e.src==="both"?"Now That's Cincy · Gig list":"Now That's Cincy";
   return '<div class="ev"><div class="t'+(e.time?"":" na")+'">'+(e.time?esc(e.time.replace(":00 "," ")):"See venue")+'</div><div class="b"><div class="ti">'+esc(e.title)+'</div><div class="v">'+esc(e.venue)+(e.genre?" · "+esc(e.genre):"")+'</div><div class="tags">'+
    (e.tier==="FREE"?'<span class="tag free">Free</span>':"")+'<span class="tag"><span class="dot" style="background:'+c[1]+'"></span>'+c[0]+'</span><span class="tag">'+src+'</span></div></div></div>'}
+/* everything that did not make a day's main list (DATA.more), for the "more" page */
+function extras(d,n){return(DATA.more||[]).filter(function(e){return e.date===d&&pass(e)&&(d!==n.iso||!e.time||e.sort>=n.mins-90)})}
+function renderMore(n,L){var d=moreDay,evs=extras(d,n);
+  var html='<section class="day"><div class="dayh"><button class="back" id="moreBack"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg>Back</button><h2>Everything else · '+esc(niceDate(d,true))+'</h2><span class="dw">'+evs.length+' more</span></div>';
+  html+=evs.length?'<div class="grid">'+evs.map(evHTML).join("")+'</div>':'<div class="empty">Nothing else listed for this filter.</div>';
+  html+='</section><div class="foot">These are the listings that did not make the main list: trivia, classes, DJ nights and whatever there was no room for. Read '+esc(DATA.events_read)+'.</div>';
+  L.innerHTML=html;$("moreBack").addEventListener("click",function(){moreDay=null;render();L.scrollTop=moreY})}
 function render(){var n=now(),L=$("list");
   if(tab==="weather"){L.innerHTML=weatherHTML(n);return}
   if(tab==="eat"){L.innerHTML=eatHTML();return}
+  if(moreDay){renderMore(n,L);return}
   var days=range(n),html="",total=0,lastDate=(DATA.events.length?DATA.events[DATA.events.length-1].date:"");
   days.forEach(function(d){var evs=DATA.events.filter(function(e){return e.date===d&&pass(e)});
     if(d===n.iso)evs=evs.filter(function(e){return!e.time||e.sort>=n.mins-90});
-    total+=evs.length;var w=todayWx(d);
+    total+=evs.length;var w=todayWx(d),ex=extras(d,n).length;
     var cap=tab==="today"?evs.length:12,key=tab+d,shown=expanded[key]?evs:evs.slice(0,cap);
     html+='<section class="day"><div class="dayh"><h2>'+(d===n.iso?"Today · ":"")+esc(niceDate(d,true))+'</h2>'+(w?'<span class="dw">'+w.hi+'° / '+w.lo+'° · '+esc(w.desc)+'</span>':"")+'</div>';
-    html+=evs.length?'<div class="grid">'+shown.map(evHTML).join("")+'</div>':'<div class="empty">Nothing listed'+(d>lastDate?" yet. This day isn't in the latest update.":" for this filter.")+'</div>';
+    var bored=(ex&&shown.length===evs.length)?'<button class="ev bored" data-d="'+d+'"><div class="t">+</div><div class="b"><div class="ti">im really bored...give me more</div><div class="v">'+ex+' more for '+esc(niceDate(d))+'</div></div></button>':"";
+    html+=(evs.length||bored)?'<div class="grid">'+shown.map(evHTML).join("")+bored+'</div>':'<div class="empty">Nothing listed'+(d>lastDate?" yet. This day isn't in the latest update.":" for this filter.")+'</div>';
     if(shown.length<evs.length)html+='<button class="more" data-k="'+key+'">Show '+(evs.length-shown.length)+' more</button>';
     html+='</section>'});
   if(tab==="weekend"&&days.length)html='<div class="foot" style="margin-top:4px">'+esc(niceDate(days[0])+" to "+niceDate(days[days.length-1]))+'</div>'+html;
   html+='<div class="foot">Events from Now That\'s Cincinnati and your Cincy gig list, read '+esc(DATA.events_read)+'. Times can change, so check with the venue before you go.</div>';
   L.innerHTML=html;
+  L.querySelectorAll(".bored").forEach(function(b){b.addEventListener("click",function(){moreY=L.scrollTop;moreDay=b.dataset.d;render();L.scrollTop=0})});
   L.querySelectorAll(".more").forEach(function(b){b.addEventListener("click",function(){expanded[b.dataset.k]=true;var y=L.scrollTop;render();L.scrollTop=y})})}
 /* ---------- restaurants (restaurants.json, a separate file from the events) ---------- */
 var EAT=null;

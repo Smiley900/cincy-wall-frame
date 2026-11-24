@@ -9,7 +9,10 @@ Inputs
 
 Usage
   python3 tools/build_data.py            write data.json
-  python3 tools/build_data.py --report   also print what is shown and what was left out
+  python3 tools/build_data.py --report   also print the main list and the "more" page for each day
+
+data.json holds "events" (the main list, capped per day) and "more" (everything else, shown on the
+"im really bored...give me more" page for a day).
 """
 import argparse, csv, datetime as dt, json, os, re, sys
 from zoneinfo import ZoneInfo
@@ -17,15 +20,27 @@ from zoneinfo import ZoneInfo
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TZ = ZoneInfo("America/New_York")
 GIG_DAYS = 10          # how far ahead gig list rows are used
-MIN_PER_DAY = 10       # quiet days are filled up to this many events
+CAP_WEEKDAY = 25       # hard limit on the main list, Sunday to Thursday
+CAP_WEEKEND = 35       # hard limit on the main list, Friday and Saturday
 MAX_TITLE = 92
 
-# Listings that are never worth a card on the wall.
-HIDE = [r"open mic", r"karaoke", r"\btrivia\b", r"\bbingo\b", r"\b(jazz|open|blues|drum|bluegrass)\s+jam\b", r"open jamb",
-        r"\bsession$", r"sign ?up", r"book club", r"workshop", r"fitness class", r"\b(coat|clothing) drive\b", r"potluck",
-        r"pop-?up", r"photo walk", r"day camp", r"drum circle", r"^dj\b", r"\bdj set\b", r"^reception$", r"industry night",
-        r"pro-am", r"poetry", r"drag", r"boxing|fight series", r"nightclub", r"weed", r"small business saturday"]
-# Never shown, whatever the source says.
+# Every listing gets a priority. The main list for a day is filled in priority order up to the cap;
+# whatever is left goes to the "more" page for that day.
+#   1  highlights: gig list, featured venues, keyword matches, hand picks
+#   2  ordinary bar and restaurant gigs
+#   3  shows starting at 11 PM or later
+#   4  open mics, karaoke and jam sessions
+#   5  not family-room suitable
+#   9  "more" page only
+MORE_ONLY = 9
+PRIORITY_NAMES = {1: "highlight", 2: "ordinary gig", 3: "late show", 4: "open mic, karaoke or jam", 5: "not family-room", 9: "more page only"}
+# Title patterns -> (priority, category when nothing better is known)
+CASUAL = [r"open mic", r"karaoke", r"\b(jazz|open|blues|drum|bluegrass)\s+jam\b", r"open jamb", r"\bsession$"]
+ADULT = [(r"drag", "other"), (r"nightclub", "music"), (r"weed", "other")]
+MORE_PAGE = [(r"^dj\b|\bdj set\b", "music"),
+             (r"\btrivia\b|\bbingo\b|sign ?up|book club|workshop|fitness class|\b(coat|clothing) drive\b|potluck|pop[- ]?up|photo walk|"
+              r"day camp|drum circle|^reception$|industry night|pro-am|poetry|boxing|fight series|small business saturday", "other")]
+# Swear words in a title: lowest priority on the main list.
 BLOCKED = ["clit", "fuck", "shit", "cunt"]
 
 # Venue name (lower case, contains) -> category. A listing at one of these is shown by default.
@@ -78,22 +93,33 @@ def tidy_title(t):
     return t
 
 def classify(e, counts):
-    """(show, cat, why) from the rules alone."""
+    """(priority, cat, why) from the rules alone."""
     title, venue = e["title"].lower(), e["venue"].lower()
-    if any(b in norm(e["title"]) for b in BLOCKED): return False, "music", "blocked word"
-    for pat in HIDE:
-        if re.search(pat, title): return False, "music", "hide rule"
-    if e["sort"] >= 23 * 60 and e["sort"] < 24 * 60: return False, "music", "starts 11 PM or later"
-    cat, show, why = "music", False, "not a featured venue"
+    cat, pri, why, known = "music", 2, "not a featured venue", False
     for name, c in FEATURED:
-        if name in venue: cat, show, why = c, True, "featured venue"; break
+        if name in venue: cat, pri, why, known = c, 1, "featured venue", True; break
     for pat, c in KEYWORDS:
         if re.search(pat, title):
             if c != "music" or cat == "music": cat = c
-            if not show: show, why = True, "keyword"
+            if pri != 1: pri, why = 1, "keyword"
+            known = True
             break
-    if counts[(venue, title)] >= 4 and show is False: why = "nightly residency"
-    return show, cat, why
+    if pri == 2 and counts[(venue, title)] >= 4: why = "nightly residency"
+    def lower(p, w, c=None):
+        nonlocal pri, why, cat
+        if p > pri: pri, why = p, w
+        if c and (not known or (c == "other" and cat == "music")): cat = c
+    if 23 * 60 <= e["sort"] < 24 * 60: lower(3, "starts 11 PM or later")
+    if any(re.search(p, title) for p in CASUAL): lower(4, "open mic, karaoke or jam", "music")
+    for pat, c in ADULT:
+        if re.search(pat, title): lower(5, "not family-room", c)
+    if any(b in norm(e["title"]) for b in BLOCKED): lower(5, "blocked word")
+    for pat, c in MORE_PAGE:
+        if re.search(pat, title): lower(MORE_ONLY, "more page only", c)
+    return pri, cat, why
+
+def cap_for(d):
+    return CAP_WEEKEND if dt.date.fromisoformat(d).weekday() in (4, 5) else CAP_WEEKDAY
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--report", action="store_true"); ap.add_argument("--today")
@@ -112,19 +138,19 @@ def main():
     rows = []
     for e in ntc["events"]:
         if e["date"] < today.isoformat(): continue
-        show, cat, why = classify(e, counts)
-        if any(re.search(p, e["title"], re.I) for p in extra_hide): show, why = False, "curation hide"
+        pri, cat, why = classify(e, counts)
+        if any(re.search(p, e["title"], re.I) for p in extra_hide): pri, why = MORE_ONLY, "curation hide"
         ov = items.get(f'{e["venue"].lower()}|{e["title"].lower()}')
         r = dict(date=e["date"], time=e["time"], sort=e["sort"], title=tidy_title(e["title"]), venue=tidy_venue(e["venue"]),
-                 cat=cat, src="ntc", show=show, why=why, raw_venue=e["venue"], raw_title=e["title"], filler=False,
+                 cat=cat, src="ntc", pri=pri, why=why, raw_venue=e["venue"], raw_title=e["title"],
                  nightly=counts[(e["venue"].lower(), e["title"].lower())] >= 4)
         if ov:
-            if "show" in ov: r["show"], r["why"] = bool(ov["show"]), "curation"
+            if "show" in ov: r["pri"], r["why"] = (1 if ov["show"] else MORE_ONLY), "curation"
             for f in ("cat", "title", "venue"):
                 if ov.get(f): r[f] = ov[f]
         rows.append(r)
 
-    # gig list: the household's own concert picks always show; borrow the start time when the events site has the same show
+    # gig list: the household's own concert picks come first; borrow the start time when the events site has the same show
     gig_path, gigs_used, gigs_merged = os.path.join(ROOT, "build", "gigs.csv"), 0, 0
     if os.path.exists(gig_path):
         last = (today + dt.timedelta(days=GIG_DAYS - 1)).isoformat()
@@ -132,7 +158,8 @@ def main():
             d = (g.get("date") or "").strip()
             if not today.isoformat() <= d <= last: continue
             artist, event = (g.get("artist") or "").strip(), (g.get("event") or "").strip()
-            if not artist or any(b in norm(artist + event) for b in BLOCKED): continue
+            if not artist: continue
+            rude = any(b in norm(artist + event) for b in BLOCKED)
             gigs_used += 1
             tier = (g.get("tier") or "").strip().upper()
             genre = (g.get("genre") or "").strip()
@@ -148,8 +175,8 @@ def main():
             hit = [r for r in rows if r["date"] == d and r["src"] != "gig" and same_show(r)]
             if hit:
                 for r in hit:
-                    if r["why"] == "blocked word": continue
-                    r.update(show=True, why="gig list", src="both", tier=tier, cat="music")
+                    r.update(src="both", tier=tier, cat="music")
+                    if r["why"] != "blocked word": r.update(pri=1, why="gig list")
                     if genre: r["genre"] = genre
                 gigs_merged += 1
                 continue
@@ -157,49 +184,57 @@ def main():
             city = (g.get("city") or "").replace(", OH", "").replace(", KY", " KY").strip()
             venue = re.sub(r"\s*\(.*?\)", "", g.get("venue") or "").strip() + ("" if city in ("", "Cincinnati") else f", {city}")
             r = dict(date=d, time="", sort=24 * 60 + 1, title=tidy_title(title), venue=venue, cat="music", src="gig", tier=tier,
-                     show=True, why="gig list", raw_venue=g.get("venue") or "", raw_title=title, filler=False, nightly=False)
+                     pri=5 if rude else 1, why="blocked word" if rude else "gig list", raw_venue=g.get("venue") or "", raw_title=title, nightly=False)
             if genre: r["genre"] = genre
             rows.append(r)
 
-    # quiet days: fill up with the remaining listings in time order (residencies last)
-    days = sorted({r["date"] for r in rows})
-    for d in days:
-        shown = [r for r in rows if r["date"] == d and r["show"]]
-        spare = [r for r in rows if r["date"] == d and not r["show"] and r["why"] in ("not a featured venue", "nightly residency")]
-        spare.sort(key=lambda r: (r["nightly"], r["sort"]))
-        for r in spare[:max(0, MIN_PER_DAY - len(shown))]:
-            r["show"], r["filler"], r["why"] = True, True, "fills a quiet day"
-
-    rows.sort(key=lambda r: (r["date"], r["sort"], r["title"].lower()))
-    seen, events = set(), []
-    for r in rows:
-        if not r["show"]: continue
+    # one row per show: when a listing appears twice, keep the higher-priority copy
+    WHY_ORDER = {"gig list": 0, "curation": 1, "featured venue": 2, "keyword": 3}
+    rank = lambda r: (r["pri"], WHY_ORDER.get(r["why"], 4), r["nightly"], r["sort"], r["title"].lower())
+    seen, uniq = set(), []
+    for r in sorted(rows, key=rank):
         k = (r["date"], r["time"], norm(r["title"]), norm(r["venue"]))
         if k in seen: continue
-        seen.add(k)
+        seen.add(k); uniq.append(r)
+    rows = uniq
+
+    # fill each day's main list in priority order up to the cap; the rest is the "more" page
+    days = sorted({r["date"] for r in rows})
+    for d in days:
+        room = cap_for(d)
+        for r in sorted((r for r in rows if r["date"] == d), key=rank):
+            r["show"] = r["pri"] != MORE_ONLY and room > 0
+            if r["show"]: room -= 1
+            elif r["pri"] != MORE_ONLY: r["why"] += ", day is full"
+
+    rows.sort(key=lambda r: (r["date"], r["sort"], r["title"].lower()))
+    def out(r):
         ev = {f: r[f] for f in ("date", "time", "sort", "title", "venue", "cat", "src")}
         for f in ("tier", "genre"):
             if r.get(f): ev[f] = r[f]
-        events.append(ev)
+        return ev
+    events = [out(r) for r in rows if r["show"]]
+    more = [out(r) for r in rows if not r["show"]]
 
     read = dt.datetime.fromisoformat(ntc["read_at"])
     data = dict(version=now.isoformat(timespec="seconds"),
                 events_read=read.strftime("%a %b ") + str(read.day) + read.strftime(", %-I:%M %p"),
-                events=events, weather=None, art=art)
+                events=events, more=more, weather=None, art=art)
     json.dump(data, open(os.path.join(ROOT, "data.json"), "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
     per = {d: sum(e["date"] == d for e in events) for d in sorted({e["date"] for e in events})}
-    print(f"data.json: {len(events)} events; gig list rows used {gigs_used} ({gigs_merged} matched to a listing); per day {per}")
+    per_more = {d: sum(e["date"] == d for e in more) for d in per}
+    print(f"data.json: {len(events)} events on the main list, {len(more)} on the more pages {per_more}; gig list rows used {gigs_used} ({gigs_merged} matched to a listing); per day {per}")
 
     if a.report:
         for d in days[:8]:
             print(f"\n## {d}  shown")
             for r in rows:
                 if r["date"] == d and r["show"]:
-                    print(f'  + {r["time"] or "-":>8} [{r["cat"]:7}] {r["title"][:60]} @ {r["venue"][:30]}  ({r["why"]}{", " + r["tier"] if r.get("tier") else ""})')
-            print(f"## {d}  left out")
+                    print(f'  + {r["time"] or "-":>8} [{r["cat"]:7}] {r["title"][:60]} @ {r["venue"][:30]}  ({r["pri"]} {r["why"]}{", " + r["tier"] if r.get("tier") else ""})')
+            print(f"## {d}  more page only (cap {cap_for(d)})")
             for r in rows:
                 if r["date"] == d and not r["show"]:
-                    print(f'  - {r["time"] or "-":>8} {r["raw_title"][:60]} @ {r["raw_venue"][:30]}  ({r["why"]})  key: {r["raw_venue"].lower()}|{r["raw_title"].lower()}'[:230])
+                    print(f'  - {r["time"] or "-":>8} {r["raw_title"][:60]} @ {r["raw_venue"][:30]}  ({r["pri"]} {r["why"]})  key: {r["raw_venue"].lower()}|{r["raw_title"].lower()}'[:230])
     if len(events) < 30:
         print("too few events: not safe to publish", file=sys.stderr); return 3
     return 0
