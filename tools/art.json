@@ -1,10 +1,59 @@
 [
  {
-  "file": "art/blue-hole.jpg",
-  "title": "Blue Hole, Flood Waters, Little Miami River",
-  "artist": "Robert S. Duncanson",
-  "year": "1851",
-  "note": "Cincinnati Art Museum"
+  "file": "art/poppy-field.jpg",
+  "title": "Poppy Field",
+  "artist": "Claude Monet",
+  "year": "1873",
+  "note": "Musée d'Orsay"
+ },
+ {
+  "file": "art/summers-day.jpg",
+  "title": "Summer's Day",
+  "artist": "Berthe Morisot",
+  "year": "c. 1879",
+  "note": "National Gallery, London"
+ },
+ {
+  "file": "art/ogunquit-beach.jpg",
+  "title": "On the Beach, Ogunquit, Maine",
+  "artist": "Edward Henry Potthast",
+  "year": "1924",
+  "note": "Born in Cincinnati"
+ },
+ {
+  "file": "art/springtime-twachtman.jpg",
+  "title": "Springtime",
+  "artist": "John Henry Twachtman",
+  "year": "c. 1884",
+  "note": "Born in Cincinnati · Cincinnati Art Museum"
+ },
+ {
+  "file": "art/the-skiff.jpg",
+  "title": "The Skiff (La Yole)",
+  "artist": "Pierre-Auguste Renoir",
+  "year": "1875",
+  "note": "National Gallery, London"
+ },
+ {
+  "file": "art/springtime-monet.jpg",
+  "title": "Springtime",
+  "artist": "Claude Monet",
+  "year": "1872",
+  "note": "The Walters Art Museum"
+ },
+ {
+  "file": "art/almond.jpg",
+  "title": "Almond Blossom",
+  "artist": "Vincent van Gogh",
+  "year": "1890",
+  "note": "Van Gogh Museum"
+ },
+ {
+  "file": "art/magpie.jpg",
+  "title": "The Magpie",
+  "artist": "Claude Monet",
+  "year": "1868–69",
+  "note": "Musée d'Orsay"
  },
  {
   "file": "art/winter-harmony.jpg",
@@ -21,17 +70,38 @@
   "note": "Smithsonian American Art Museum"
  },
  {
-  "file": "art/magpie.jpg",
-  "title": "The Magpie",
-  "artist": "Claude Monet",
-  "year": "1868–69",
-  "note": "Musée d'Orsay"
+  "file": "art/bathing-beach.jpg",
+  "title": "The Bathing Beach",
+  "artist": "Edward Henry Potthast",
+  "year": "",
+  "note": "Born in Cincinnati"
  },
  {
-  "file": "art/almond.jpg",
-  "title": "Almond Blossom",
-  "artist": "Vincent van Gogh",
-  "year": "1890",
-  "note": "Van Gogh Museum"
+  "file": "art/villeneuve-bridge.jpg",
+  "title": "The Bridge at Villeneuve-la-Garenne",
+  "artist": "Alfred Sisley",
+  "year": "1872",
+  "note": "The Metropolitan Museum of Art"
+ },
+ {
+  "file": "art/sainte-adresse.jpg",
+  "title": "Garden at Sainte-Adresse",
+  "artist": "Claude Monet",
+  "year": "1867",
+  "note": "The Metropolitan Museum of Art"
+ },
+ {
+  "file": "art/at-the-seaside.jpg",
+  "title": "At the Seaside",
+  "artist": "William Merritt Chase",
+  "year": "c. 1892",
+  "note": "The Metropolitan Museum of Art"
+ },
+ {
+  "file": "art/poppies-shoals.jpg",
+  "title": "Poppies, Isles of Shoals",
+  "artist": "Childe Hassam",
+  "year": "1891",
+  "note": "National Gallery of Art"
  }
 ]

@@ -176,7 +176,7 @@ function dimLevel(n){return n.h>=CONFIG.eveningStart||n.h<CONFIG.nightEnd?CONFIG
 function paintNext(){if(!arts.length)return;var a=arts[ai%arts.length];ai++;
   var els=document.querySelectorAll("#paint .art"),el=els[slot],other=els[1-slot];slot=1-slot;
   var img=new Image();img.onload=function(){el.style.backgroundImage="url('"+a.file+"')";applyDim();el.classList.add("on");other.classList.remove("on")};img.src=a.file;
-  $("cap").innerHTML="<i>"+esc(a.title)+"</i>, "+esc(a.artist)+", "+esc(a.year)}
+  $("cap").innerHTML="<i>"+esc(a.title)+"</i>, "+esc(a.artist)+(a.year?", "+esc(a.year):"")}
 function applyDim(){var d=dimLevel(now()),f=d<1?"brightness("+d+") saturate(.92)":"none";document.querySelectorAll("#paint .art").forEach(function(e){e.style.filter=f})}
 paintNext();setInterval(paintNext,CONFIG.rotateMinutes*60000);
 
