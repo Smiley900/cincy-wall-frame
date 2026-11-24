@@ -5,7 +5,12 @@ This is the procedure a scheduled run follows, twice a day. It rewrites `data.js
 ## Steps
 
 1. **Read the events site.** Run `python3 tools/fetch_events.py`. It writes `build/ntc.json` with every listing for the next 8 days. If it exits with an error, stop: leave `data.json` as it is and report the error.
-2. **Get the gig list.** Save the gig list CSV named in your run instructions to `build/gigs.csv`, and copy it to `tools/cache/gigs.csv`. If it cannot be read this run, copy `tools/cache/gigs.csv` to `build/gigs.csv` and say so in the report.
+2. **Get the gig list.** Download the gig list CSV named in your run instructions; never retype it.
+   - Ask the Dropbox connector for a temporary download link to the file (`download_link`). The result gives a `download_url` and a `content_hash`.
+   - Download it once: `curl -sS -m 60 -o build/gigs.csv '<download_url>'`. The link works a single time.
+   - Check it: `python3 tools/check_download.py build/gigs.csv <content_hash>` must print `match`.
+   - Copy it to `tools/cache/gigs.csv`.
+   - If the link, the download or the check fails, copy `tools/cache/gigs.csv` to `build/gigs.csv` instead and say so in the report. Do not write the file out by hand.
 3. **Build and review.** Run `python3 tools/build_data.py --report > build/report.txt` and read the report. For each day it lists what is shown, with the reason, and what was left out, with the key to use in step 4.
 4. **Record decisions.** Edit `tools/curation.json`. Under `items`, add one entry per decision, keyed `<venue as listed>|<title as listed>` in lower case, with any of `show` (true or false), `cat`, `title`, `venue`. Then run step 3 again.
 5. **Check.** `data.json` must load as JSON, hold at least 30 events, and have events for today or tomorrow.
