@@ -1,0 +1,501 @@
+{
+ "_about": "The household's restaurant picks for the wall frame. Fields: name, type, desc, address (street address in Cincinnati, OH), lat, lon, mi (straight-line miles from the frame, set by build_restaurants.py --home), optional place_id (Google place ID) and show (false hides a place). Run tools/build_restaurants.py after any change.",
+ "source": "Only in OTR and the household's own picks",
+ "places": [
+  {
+   "name": "Colette",
+   "type": "French",
+   "desc": "Mostly French comfort cooking, with dishes like duck confit and ravioli.",
+   "address": "1400 Race St",
+   "lat": 39.11046,
+   "lon": -84.51683,
+   "mi": 0.4
+  },
+  {
+   "name": "Nicola's",
+   "type": "Italian fine dining",
+   "desc": "Long-standing fine dining with a modern Italian menu and a deep wine list.",
+   "address": "1420 Sycamore St",
+   "lat": 39.11216,
+   "lon": -84.51056,
+   "mi": 0.1
+  },
+  {
+   "name": "Wildweed",
+   "type": "Chef-driven",
+   "desc": "A chef-led restaurant where the kitchen treats the menu as its own story.",
+   "address": "1301 Walnut St",
+   "lat": 39.10979,
+   "lon": -84.51366,
+   "mi": 0.3
+  },
+  {
+   "name": "Losanti",
+   "type": "Italian steakhouse",
+   "desc": "A small, polished Italian steakhouse.",
+   "address": "1401 Race St",
+   "lat": 39.11042,
+   "lon": -84.51723,
+   "mi": 0.5
+  },
+  {
+   "name": "Krueger's Tavern",
+   "type": "New American",
+   "desc": "Seasonal small and large plates, with a rooftop patio.",
+   "address": "1313 Vine St",
+   "lat": 39.10999,
+   "lon": -84.51536,
+   "mi": 0.4
+  },
+  {
+   "name": "Abigail Street",
+   "type": "Mediterranean",
+   "desc": "Wine bar with Mediterranean and Middle Eastern shared plates.",
+   "address": "1214 Vine St",
+   "lat": 39.1088,
+   "lon": -84.51476,
+   "mi": 0.4
+  },
+  {
+   "name": "Pepp & Dolores",
+   "type": "Italian",
+   "desc": "Casual, family-style Italian.",
+   "address": "1501 Vine St",
+   "lat": 39.11183,
+   "lon": -84.51595,
+   "mi": 0.4
+  },
+  {
+   "name": "Biscuit Love",
+   "type": "Southern brunch",
+   "desc": "Family-owned breakfast and brunch spot with Southern favorites.",
+   "address": "1602 Pleasant St",
+   "lat": 39.11319,
+   "lon": -84.51843,
+   "mi": 0.5
+  },
+  {
+   "name": "Alcove Kitchen + Bar",
+   "type": "American",
+   "desc": "Kitchen and bar with cocktails, beer and a large outdoor patio.",
+   "address": "1410 Vine St",
+   "lat": 39.11127,
+   "lon": -84.5153,
+   "mi": 0.4
+  },
+  {
+   "name": "Soul Secrets",
+   "type": "Soul food",
+   "desc": "Southern soul food, with vegan options.",
+   "address": "1434 Vine St",
+   "lat": 39.11191,
+   "lon": -84.51554,
+   "mi": 0.4
+  },
+  {
+   "name": "Nolia Kitchen",
+   "type": "Southern",
+   "desc": "Classic Southern flavors alongside more inventive takes.",
+   "address": "1405 Clay St",
+   "lat": 39.11138,
+   "lon": -84.51313,
+   "mi": 0.2
+  },
+  {
+   "name": "Sacred Beast",
+   "type": "Diner",
+   "desc": "Diner classics with a twist, such as a French-style burger and deviled eggs.",
+   "address": "1437 Vine St",
+   "lat": 39.1116,
+   "lon": -84.51577,
+   "mi": 0.4
+  },
+  {
+   "name": "Bakersfield",
+   "type": "Mexican",
+   "desc": "Street-style Mexican food with a long list of tequilas and whiskeys.",
+   "address": "1213 Vine St",
+   "lat": 39.10869,
+   "lon": -84.51504,
+   "mi": 0.4
+  },
+  {
+   "name": "Taglio",
+   "type": "Pizza",
+   "desc": "Detroit and New York style pizza, plus salads, gelato, wine and beer.",
+   "address": "56 E 12th St",
+   "lat": 39.10865,
+   "lon": -84.5134,
+   "mi": 0.3
+  },
+  {
+   "name": "Che",
+   "type": "Argentine",
+   "desc": "Empanadas, burgers and plates to share.",
+   "address": "1342 Walnut St",
+   "lat": 39.11097,
+   "lon": -84.51364,
+   "mi": 0.3
+  },
+  {
+   "name": "Fillo Modern Greek",
+   "type": "Greek",
+   "desc": "A modern take on simple, traditional Greek cooking.",
+   "address": "1505 Race St",
+   "lat": 39.11159,
+   "lon": -84.51744,
+   "mi": 0.5
+  },
+  {
+   "name": "Bee's Barbecue",
+   "type": "Barbecue",
+   "desc": "Craft barbecue.",
+   "address": "1403 Vine St",
+   "lat": 39.11072,
+   "lon": -84.51554,
+   "mi": 0.4
+  },
+  {
+   "name": "The Eagle",
+   "type": "Fried chicken",
+   "desc": "House-brined fried chicken with Southern sides.",
+   "address": "1342 Vine St",
+   "lat": 39.11071,
+   "lon": -84.51524,
+   "mi": 0.4
+  },
+  {
+   "name": "Aladdin's",
+   "type": "Lebanese",
+   "desc": "Lebanese-American plates, smoothies, fresh juices and desserts.",
+   "address": "1203 Main St",
+   "lat": 39.10895,
+   "lon": -84.51176,
+   "mi": 0.2
+  },
+  {
+   "name": "Lucius Q",
+   "type": "Barbecue",
+   "desc": "Midwest barbecue in a modern industrial room.",
+   "address": "1131 Broadway St",
+   "lat": 39.10955,
+   "lon": -84.50851,
+   "mi": 0.1
+  },
+  {
+   "name": "Pho Lang Thang",
+   "type": "Vietnamese",
+   "desc": "Vietnamese restaurant at Findlay Market.",
+   "address": "1828 Race St",
+   "lat": 39.11631,
+   "lon": -84.51832,
+   "mi": 0.6
+  },
+  {
+   "name": "Dunlap Cafe",
+   "type": "American",
+   "desc": "OTR's longest-running spot, with home cooking and strong drinks.",
+   "address": "1926 Dunlap St",
+   "lat": 39.1172,
+   "lon": -84.52118,
+   "mi": 0.8
+  },
+  {
+   "name": "City Bird",
+   "type": "Chicken tenders",
+   "desc": "All-natural chicken, brined and fried, with house-made sauces.",
+   "address": "1344 Vine St",
+   "lat": 39.11087,
+   "lon": -84.51521,
+   "mi": 0.4
+  },
+  {
+   "name": "Milkman",
+   "type": "Burgers",
+   "desc": "Burgers and boozy milkshakes with a retro feel.",
+   "address": "1106 Race St",
+   "lat": 39.10738,
+   "lon": -84.51606,
+   "mi": 0.5
+  },
+  {
+   "name": "Teak Thai",
+   "type": "Thai and sushi",
+   "desc": "Asian menu that runs from Thai dishes to sushi.",
+   "address": "1200 Race St",
+   "lat": 39.10828,
+   "lon": -84.51616,
+   "mi": 0.5
+  },
+  {
+   "name": "Zundo Ramen & Donburi",
+   "type": "Japanese",
+   "desc": "Ramen and rice bowls.",
+   "address": "220 W 12th St",
+   "lat": 39.10779,
+   "lon": -84.51899,
+   "mi": 0.6
+  },
+  {
+   "name": "Kanji OTR",
+   "type": "Korean and sushi",
+   "desc": "Sushi, traditional Korean dishes and modern plates to share.",
+   "address": "1739 Elm St",
+   "lat": 39.11502,
+   "lon": -84.51997,
+   "mi": 0.7
+  },
+  {
+   "name": "Alabama Fish Bar",
+   "type": "Fried fish",
+   "desc": "Take-out only: fried whiting, cod or perch with fries.",
+   "address": "Race St at Liberty St",
+   "lat": 39.11319,
+   "lon": -84.51793,
+   "mi": 0.5
+  },
+  {
+   "name": "Poke Hut",
+   "type": "Asian fusion",
+   "desc": "Fast-casual Asian fusion and bubble tea.",
+   "address": "1509 Race St",
+   "lat": 39.11175,
+   "lon": -84.51747,
+   "mi": 0.5
+  },
+  {
+   "name": "Eli's BBQ",
+   "type": "Barbecue",
+   "desc": "Ribs, pulled pork and other barbecue classics.",
+   "address": "133 W Elder St",
+   "lat": 39.11501,
+   "lon": -84.5196,
+   "mi": 0.6
+  },
+  {
+   "name": "The Arepa Place",
+   "type": "Arepas",
+   "desc": "Arepas filled with chicken, steak, pork, chorizo or vegetables.",
+   "address": "131 W Elder St",
+   "lat": 39.11501,
+   "lon": -84.51953,
+   "mi": 0.6
+  },
+  {
+   "name": "Crown Cantina",
+   "type": "Mexican",
+   "desc": "Mexican dining with a touch of luxury.",
+   "address": "326 E 8th St",
+   "lat": 39.10556,
+   "lon": -84.50774,
+   "mi": 0.4
+  },
+  {
+   "name": "Sugar n' Spice",
+   "type": "Breakfast diner",
+   "desc": "Thin pancakes, big omelets and sandwiches, served for over 80 years.",
+   "address": "1203 Sycamore St",
+   "lat": 39.10955,
+   "lon": -84.51034,
+   "mi": 0.2
+  },
+  {
+   "name": "Gomez Salsa",
+   "type": "Mexican",
+   "desc": "Tacos, margaritas and its signature Turtle.",
+   "address": "107 E 12th St",
+   "lat": 39.10846,
+   "lon": -84.51296,
+   "mi": 0.3
+  },
+  {
+   "name": "On-the-Rhine Eatery",
+   "type": "Food hall",
+   "desc": "Five counters under one roof: barbecue, Korean, Asian street food, salads and burgers.",
+   "address": "100 E Court St",
+   "lat": 39.10704,
+   "lon": -84.51246,
+   "mi": 0.4
+  },
+  {
+   "name": "Goodfellas Pizzeria",
+   "type": "Pizza",
+   "desc": "New York style pizza.",
+   "address": "1211 Main St",
+   "lat": 39.10918,
+   "lon": -84.51179,
+   "mi": 0.2
+  },
+  {
+   "name": "Young Buck Deli",
+   "type": "Deli",
+   "desc": "Sandwiches on house-made focaccia.",
+   "address": "1332 Vine St",
+   "lat": 39.11056,
+   "lon": -84.51521,
+   "mi": 0.4
+  },
+  {
+   "name": "The Empanada's Box",
+   "type": "Empanadas",
+   "desc": "Family-run empanada shop with meat, vegetarian, vegan and sweet fillings.",
+   "address": "Elm St at Findlay Market",
+   "lat": 39.11576,
+   "lon": -84.52033,
+   "mi": 0.7
+  },
+  {
+   "name": "Lucy Blue",
+   "type": "Pizza",
+   "desc": "Fresh pizza.",
+   "address": "1301 Vine St",
+   "lat": 39.10956,
+   "lon": -84.51528,
+   "mi": 0.4
+  },
+  {
+   "name": "Uncle Leo's",
+   "type": "Bar food",
+   "desc": "A bar with beef bourguignon, oysters, lobster rolls and Sunday sloppy joes.",
+   "address": "1709 Race St",
+   "lat": 39.11457,
+   "lon": -84.51817,
+   "mi": 0.6
+  },
+  {
+   "name": "The Bagelry",
+   "type": "Bagels",
+   "desc": "Family-owned neighborhood bagel shop, open since 2018.",
+   "address": "1401 Walnut St",
+   "lat": 39.11125,
+   "lon": -84.514,
+   "mi": 0.3
+  },
+  {
+   "name": "Allez Cafe",
+   "type": "Cafe",
+   "desc": "Coffee, pastries and savory sandwiches.",
+   "address": "1201 Main St",
+   "lat": 39.10888,
+   "lon": -84.51174,
+   "mi": 0.3
+  },
+  {
+   "name": "Subway",
+   "type": "Sandwich chain",
+   "desc": "Build-your-own sandwiches and salads.",
+   "address": "1123 Sycamore St",
+   "lat": 39.10849,
+   "lon": -84.51003,
+   "mi": 0.2
+  },
+  {
+   "name": "Onolicious Hawaii",
+   "type": "Hawaiian",
+   "desc": "Hawaiian plates, poke and barbecue, with a bar.",
+   "address": "1005 Walnut St",
+   "lat": 39.10681,
+   "lon": -84.51315,
+   "mi": 0.4
+  },
+  {
+   "name": "Arnold's Bar and Grill",
+   "type": "American tavern",
+   "desc": "Historic downtown tavern with a courtyard and live music.",
+   "address": "210 E 8th St",
+   "lat": 39.10518,
+   "lon": -84.51013,
+   "mi": 0.5
+  },
+  {
+   "name": "Hard Rock Casino",
+   "type": "Casino dining",
+   "desc": "Restaurants and bars inside the casino.",
+   "address": "1000 Broadway St",
+   "lat": 39.1082,
+   "lon": -84.50677,
+   "mi": 0.3
+  },
+  {
+   "name": "Aji Ichiban",
+   "type": "Japanese",
+   "desc": "Japanese food downtown, with takeout.",
+   "address": "1000 Elm St",
+   "lat": 39.10595,
+   "lon": -84.51737,
+   "mi": 0.6
+  },
+  {
+   "name": "Mid City Restaurant",
+   "type": "American",
+   "desc": "Neighborhood restaurant and bar on Court Street.",
+   "address": "40 E Court St",
+   "lat": 39.10664,
+   "lon": -84.51333,
+   "mi": 0.4
+  },
+  {
+   "name": "Pata Roja Tacos",
+   "type": "Mexican",
+   "desc": "Quick Mexico City style street tacos at a counter.",
+   "address": "52 E Court St",
+   "lat": 39.10668,
+   "lon": -84.51302,
+   "mi": 0.4
+  },
+  {
+   "name": "Jimmie Lou's",
+   "type": "New Orleans",
+   "desc": "New Orleans cooking and classic cocktails from the chef behind Nolia.",
+   "address": "1201 Broadway St",
+   "lat": 39.1098,
+   "lon": -84.5085,
+   "mi": 0.1
+  },
+  {
+   "name": "Bar Rosso",
+   "type": "Steak frites",
+   "desc": "Steak frites and vermouth.",
+   "address": "1324 Vine St",
+   "lat": 39.11014,
+   "lon": -84.51509,
+   "mi": 0.4
+  },
+  {
+   "name": "Longfellow",
+   "type": "Bar, light fare",
+   "desc": "Relaxed cocktail lounge with a few light bites.",
+   "address": "1233 Clay St",
+   "lat": 39.1097,
+   "lon": -84.5128,
+   "mi": 0.3
+  },
+  {
+   "name": "Homemakers Bar",
+   "type": "Bar, light fare",
+   "desc": "Cocktail bar with a house-party feel and light bites.",
+   "address": "39 E 13th St",
+   "lat": 39.10958,
+   "lon": -84.51358,
+   "mi": 0.3
+  },
+  {
+   "name": "The Pony",
+   "type": "Bar with food",
+   "desc": "Neighborhood bar with good bar food, drinks and games.",
+   "address": "1346 Main St",
+   "lat": 39.11111,
+   "lon": -84.51199,
+   "mi": 0.2
+  },
+  {
+   "name": "Mellotone Beer Project",
+   "type": "Brewpub",
+   "desc": "A modern brewpub with its own beer and a food menu.",
+   "address": "1429 Race St",
+   "lat": 39.11132,
+   "lon": -84.51749,
+   "mi": 0.5
+  }
+ ]
+}
