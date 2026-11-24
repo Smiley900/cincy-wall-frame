@@ -17,6 +17,21 @@
   },
   "memorial hall|new legacy ensemble theatre: homegirl holiday": {
    "cat": "theater"
+  },
+  "american sign museum|sign crafting saturday": {
+   "show": false
+  },
+  "contemporary arts center|artist in residence at the cac: orion inez": {
+   "show": false
+  },
+  "clifton comedy theatre|comedysportz": {
+   "show": false
+  },
+  "clifton cultural arts center|art + tales: elmer": {
+   "cat": "family"
+  },
+  "behringer-crawford museum|nky history hour:a milk can goes to market with charles bogart": {
+   "cat": "family"
   }
  }
 }
