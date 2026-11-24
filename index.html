@@ -145,7 +145,7 @@ main{flex:1;overflow-y:auto;padding:0 var(--padr) 28px var(--pad);-webkit-overfl
 <script>
 function startFrame(){
 "use strict";
-var CONFIG={rotateMinutes:5,idleSeconds:90,nightStart:23,nightEnd:7,eveningStart:19,dayDim:1,eveningDim:0.6,peekSeconds:60,tz:"America/New_York",lat:39.1031,lon:-84.512,weatherMinutes:15,weatherTapSeconds:120};
+var CONFIG={rotateMinutes:5,idleSeconds:90,nightStart:23,nightEnd:7,eveningStart:19,dayDim:1,eveningDim:0.6,peekSeconds:60,tz:"America/New_York",lat:39.1031,lon:-84.512,weatherMinutes:15,weatherTapSeconds:120,dayWarmth:0,eveningWarmth:0.18};
 var DATA=window.__FRAME_DATA__;
 var $=function(id){return document.getElementById(id)};
 var CAT={music:["Music","var(--amber)"],holiday:["Holiday","var(--rose)"],theater:["Theater","var(--plum)"],comedy:["Comedy","var(--plum)"],family:["Family","var(--sage)"],art:["Art","var(--sky)"],film:["Film","var(--sky)"]};
@@ -181,7 +181,8 @@ function dimLevel(n){return n.h>=CONFIG.eveningStart||n.h<CONFIG.nightEnd?CONFIG
 function paintNext(){if(!arts.length)return;var a=arts[ai%arts.length];ai++;
   var els=document.querySelectorAll("#paint .art"),el=els[slot],other=els[1-slot];slot=1-slot;
   var img=new Image();img.onload=function(){el.style.backgroundImage="url('"+a.file+"')";applyDim();el.classList.add("on");other.classList.remove("on")};img.src=a.file}
-function applyDim(){var d=dimLevel(now()),f=d<1?"brightness("+d+") saturate(.92)":"none";document.querySelectorAll("#paint .art").forEach(function(e){e.style.filter=f})}
+function applyDim(){var d=dimLevel(now()),eve=d<1,w=eve?CONFIG.eveningWarmth:CONFIG.dayWarmth;   /* evenings: dimmer and a little warmer, to sit better under lamp light */
+  var f=(eve?"brightness("+d+") saturate(.92) ":"")+(w>0?"sepia("+w+")":"");document.querySelectorAll("#paint .art").forEach(function(e){e.style.filter=f||"none"})}
 paintNext();setInterval(paintNext,CONFIG.rotateMinutes*60000);
 
 /* ---------- clock & night ---------- */
