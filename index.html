@@ -16,14 +16,6 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 #paint{background:var(--matte);cursor:pointer}
 #paint .art{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 3s ease,filter 3s ease}
 #paint .art.on{opacity:1}
-#paint .vign{position:absolute;left:0;right:0;bottom:0;height:20%;background:linear-gradient(to top,rgba(10,8,6,.34),transparent);pointer-events:none}
-#paint .corner{position:absolute;right:var(--padr);bottom:max(18px,env(safe-area-inset-bottom));text-align:right;color:rgba(255,250,242,.94);text-shadow:0 1px 10px rgba(0,0,0,.75),0 0 2px rgba(0,0,0,.5);pointer-events:none}
-#paint .clock{font-family:"Fraunces",Georgia,serif;font-weight:300;font-size:clamp(28px,4.2vw,54px);letter-spacing:.5px;line-height:1}
-#paint .wx{font-size:clamp(13px,1.4vw,17px);margin-top:4px}
-#paint .cap{position:absolute;left:var(--pad);bottom:max(18px,env(safe-area-inset-bottom));max-width:55%;color:rgba(255,250,242,.8);font-size:clamp(12px,1.2vw,15px);text-shadow:0 1px 10px rgba(0,0,0,.8),0 0 2px rgba(0,0,0,.5);pointer-events:none;transition:opacity 2s}
-#paint .cap i{font-family:"Fraunces",Georgia,serif;font-style:italic;color:rgba(255,250,242,.94)}
-#paint .hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:14px 22px;border-radius:40px;background:rgba(14,12,10,.55);color:var(--ink2);font-size:16px;opacity:0;transition:opacity .6s;pointer-events:none}
-#paint .hint.show{opacity:1}
 /* browse */
 #browse{background:var(--matte);display:flex;flex-direction:column}
 .topbar{display:flex;align-items:center;gap:8px 14px;padding:10px var(--padr) 8px var(--pad);flex-wrap:wrap}
@@ -108,10 +100,6 @@ main{flex:1;overflow-y:auto;padding:0 var(--padr) 28px var(--pad);-webkit-overfl
 <body>
 <div id="paint" class="layer" role="button" aria-label="Tap to see what's on in Cincinnati">
   <div class="art"></div><div class="art"></div>
-  <div class="vign"></div>
-  <div class="cap" id="cap"></div>
-  <div class="corner"><div class="clock" id="pclock"></div><div class="wx" id="pwx"></div></div>
-  <div class="hint" id="hint">Tap for what's on</div>
 </div>
 
 <div id="browse" class="layer hidden" aria-hidden="true">
@@ -143,7 +131,7 @@ main{flex:1;overflow-y:auto;padding:0 var(--padr) 28px var(--pad);-webkit-overfl
 <script>
 function startFrame(){
 "use strict";
-var CONFIG={rotateMinutes:5,idleSeconds:90,nightStart:23,nightEnd:7,eveningStart:19,dayDim:1,eveningDim:0.6,peekSeconds:60,tz:"America/New_York",lat:39.1031,lon:-84.512,weatherMinutes:15,weatherTapSeconds:120};
+var CONFIG={rotateMinutes:5,idleSeconds:90,nightStart:23,nightEnd:7,eveningStart:19,dayDim:1,eveningDim:0.6,peekSeconds:60,tz:"America/New_York",lat:39.1031,lon:-84.512,weatherMinutes:15,weatherTapSeconds:20};
 var DATA=window.__FRAME_DATA__;
 var $=function(id){return document.getElementById(id)};
 var CAT={music:["Music","var(--amber)"],holiday:["Holiday","var(--rose)"],theater:["Theater","var(--plum)"],comedy:["Comedy","var(--plum)"],family:["Family","var(--sage)"],art:["Art","var(--sky)"],film:["Film","var(--sky)"]};
@@ -160,11 +148,14 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return
 /* ---------- modes ---------- */
 var mode="paint",idleT=null,peek=false;
 function show(m){mode=m;["paint","browse","night"].forEach(function(id){var el=$(id),on=id===m;el.classList.toggle("hidden",!on);el.setAttribute("aria-hidden",on?"false":"true")});
-  if(m==="browse"){render();$("list").scrollTop=0;if(typeof wxMaybe==="function")wxMaybe(CONFIG.weatherTapSeconds)}armIdle()}
+  if(m==="browse"){render();$("list").scrollTop=0;wxMaybe(CONFIG.weatherTapSeconds)}armIdle()}
 function isNight(n){return n.h>=CONFIG.nightStart||n.h<CONFIG.nightEnd}
 function armIdle(){clearTimeout(idleT);if(mode!=="browse")return;
   idleT=setTimeout(function(){peek=false;show(isNight(now())?"night":"paint")},(peek?CONFIG.peekSeconds:CONFIG.idleSeconds)*1000)}
-["pointerdown","keydown","wheel","touchstart"].forEach(function(ev){document.addEventListener(ev,function(){armIdle();wake()},{passive:true})});
+var touching=false;
+["pointerdown","keydown","wheel","touchstart"].forEach(function(ev){document.addEventListener(ev,function(){armIdle();wake();
+  if(ev!=="wheel"){if(ev!=="keydown")touching=true;wxMaybe(CONFIG.weatherTapSeconds)}},{passive:true})});
+["pointerup","pointercancel","touchend","touchcancel"].forEach(function(ev){document.addEventListener(ev,function(){touching=false;if(wxPending)setTimeout(drawWx,400)},{passive:true})});
 $("list").addEventListener("scroll",armIdle,{passive:true});
 $("paint").addEventListener("click",function(){show("browse")});
 $("toPaint").addEventListener("click",function(e){e.stopPropagation();show(isNight(now())?"night":"paint")});
@@ -175,16 +166,13 @@ var arts=DATA.art||[],ai=Math.floor(Math.random()*Math.max(1,arts.length)),slot=
 function dimLevel(n){return n.h>=CONFIG.eveningStart||n.h<CONFIG.nightEnd?CONFIG.eveningDim:CONFIG.dayDim}
 function paintNext(){if(!arts.length)return;var a=arts[ai%arts.length];ai++;
   var els=document.querySelectorAll("#paint .art"),el=els[slot],other=els[1-slot];slot=1-slot;
-  var img=new Image();img.onload=function(){el.style.backgroundImage="url('"+a.file+"')";applyDim();el.classList.add("on");other.classList.remove("on")};img.src=a.file;
-  $("cap").innerHTML="<i>"+esc(a.title)+"</i>, "+esc(a.artist)+(a.year?", "+esc(a.year):"")}
+  var img=new Image();img.onload=function(){el.style.backgroundImage="url('"+a.file+"')";applyDim();el.classList.add("on");other.classList.remove("on")};img.src=a.file}
 function applyDim(){var d=dimLevel(now()),f=d<1?"brightness("+d+") saturate(.92)":"none";document.querySelectorAll("#paint .art").forEach(function(e){e.style.filter=f})}
 paintNext();setInterval(paintNext,CONFIG.rotateMinutes*60000);
 
 /* ---------- clock & night ---------- */
-function tick(){var n=now();$("pclock").textContent=clock(n);
+function tick(){var n=now();
   $("bdate").textContent=clock(n)+(n.h<12?" AM":" PM");
-  var w=DATA.weather,td=todayWx(n.iso);
-  $("pwx").textContent=wxFresh(w)?(w.now.temp+"°  ·  "+w.now.desc+(td?"  ·  "+td.hi+"° / "+td.lo+"°":"")):(td?(td.hi+"° / "+td.lo+"°  ·  "+td.desc):"");
   if(isNight(n)&&mode==="paint")show("night");
   if(!isNight(n)&&mode==="night")show("paint");
   applyDim()}
@@ -276,7 +264,11 @@ function mapWx(j){var c=j.current,H=j.hourly,D=j.daily,w={live:true,updated:new 
   for(var k=0;k<H.time.length;k++)w.hours.push({t:H.time[k].slice(0,13),temp:Math.round(H.temperature_2m[k]),desc:wmo(H.weather_code[k],H.is_day?H.is_day[k]:1),rain:H.precipitation_probability[k]||0,wind:Math.round(H.wind_speed_10m[k])});
   w.sunrise=hm(D.sunrise[0]);w.sunset=hm(D.sunset[0]);return w}
 var wxAt=0,wxBusy=false;
-function useWx(w){DATA.weather=w;nowChip();tick();if(mode==="browse"&&tab==="weather"){var y=$("list").scrollTop;render();$("list").scrollTop=y}}
+var wxPending=false;
+function drawWx(){if(!(mode==="browse"&&tab==="weather")){wxPending=false;return}
+  if(touching){wxPending=true;return}   /* never redraw under a finger: wait until it lifts */
+  wxPending=false;var L=$("list"),y=L.scrollTop,st=L.querySelector(".wxh"),x=st?st.scrollLeft:0;render();L.scrollTop=y;st=L.querySelector(".wxh");if(st)st.scrollLeft=x}
+function useWx(w){DATA.weather=w;nowChip();tick();drawWx()}
 function wxFetch(){if(!window.fetch||wxBusy)return;wxBusy=true;
   var u="https://api.open-meteo.com/v1/forecast?latitude="+CONFIG.lat+"&longitude="+CONFIG.lon+"&current=temperature_2m,weather_code,is_day&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone="+encodeURIComponent(CONFIG.tz)+"&forecast_days=8";
   fetch(u,{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){var w=mapWx(j);wxAt=Date.now();wxBusy=false;
@@ -289,8 +281,6 @@ wxFetch();setInterval(function(){if(mode!=="night")wxMaybe(CONFIG.weatherMinutes
 var lock=null;function wake(){try{if(navigator.wakeLock&&!lock&&document.visibilityState==="visible")navigator.wakeLock.request("screen").then(function(l){lock=l;l.addEventListener("release",function(){lock=null})}).catch(function(){})}catch(e){}}
 document.addEventListener("visibilitychange",wake);
 
-/* first-run hint */
-setTimeout(function(){$("hint").classList.add("show");setTimeout(function(){$("hint").classList.remove("show")},3500)},1500);
 nowChip();tick();if(isNight(now()))show("night");
 setInterval(function(){var n=now();if(mode==="night")$("nmsg").classList.remove("show")},60000);
 $("night").addEventListener("pointerdown",function(){},{passive:true});
