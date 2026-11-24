@@ -110,7 +110,7 @@ def classify(e, counts):
         if p > pri: pri, why = p, w
         if c and (not known or (c == "other" and cat == "music")): cat = c
     if 23 * 60 <= e["sort"] < 24 * 60: lower(3, "starts 11 PM or later")
-    if any(re.search(p, title) for p in CASUAL): lower(4, "open mic, karaoke or jam", "music")
+    if any(re.search(p, title) for p in CASUAL): lower(4, "open mic, karaoke or jam", "comedy" if "comedy" in title else "music")
     for pat, c in ADULT:
         if re.search(pat, title): lower(5, "not family-room", c)
     if any(b in norm(e["title"]) for b in BLOCKED): lower(5, "blocked word")
