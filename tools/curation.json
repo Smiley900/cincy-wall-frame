@@ -45,6 +45,29 @@
   "cincinnati observatory|crash test asteroid": {
    "show": true,
    "cat": "family"
+  },
+  "the factory events|ohio vintage expo": {
+   "cat": "other"
+  },
+  "joseph-beth cincinnati|mark d. baumgartner in convo w/ matt mcbride discussing & signing last chance for a slow dance": {
+   "cat": "other"
+  },
+  "the mercantile library|the big book of dinner: an evening with melissa clark": {
+   "cat": "other"
+  },
+  "hive13|all-levels linux meetup": {
+   "show": false,
+   "cat": "other"
+  },
+  "mellotone beer project|mello laughs stand up comedy show": {
+   "cat": "comedy"
+  },
+  "northside tavern|true theatre pitch night": {
+   "cat": "other"
+  },
+  "juniper's|eliza guerra chapbook release w/ millie ferguson, katrina eresman, kay e. bankroft": {
+   "show": false,
+   "cat": "other"
   }
  }
 }
