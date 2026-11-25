@@ -33,6 +33,12 @@ nav.tabs button[aria-selected=true]{background:var(--amber);color:#1b140b;font-w
 .chips{display:flex;gap:8px;min-width:0;padding-left:14px;border-left:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
 .chips button{min-height:44px;padding:0 15px;border-radius:30px;border:1px solid var(--line);color:var(--ink2);font-size:16px;white-space:nowrap;flex:0 0 auto}
 .chips button[aria-pressed=true]{border-color:var(--ink2);color:var(--ink);background:var(--card)}
+.sbtn{min-height:44px;width:44px;border-radius:30px;border:1px solid var(--line);color:var(--ink2);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.sbtn:active{background:var(--card2)}
+.sbar{flex:6 1 260px;display:flex;gap:8px;min-width:0;padding-left:14px;border-left:1px solid var(--line)}
+.sbar input{flex:1;min-width:0;min-height:44px;border-radius:30px;border:1px solid var(--ink2);background:var(--card);color:var(--ink);font:inherit;font-size:18px;padding:0 18px;outline:none}
+.sbar input::placeholder{color:var(--ink3)}
+.tag.alt{border:1px dashed var(--line);background:transparent}
 @media (max-width:1700px){.nowwx span{display:none}}
 @media (max-width:1540px){.chips{order:9;flex:1 0 100%;padding-left:0;border-left:0}}
 @media (max-width:900px){.topbar .spacer{display:none}nav.tabs{order:8;flex:1 0 100%}.chips{order:9;flex:1 0 100%;padding-left:0;border-left:0}.bclock{margin-right:auto}}
@@ -86,12 +92,14 @@ main{flex:1;overflow-y:auto;padding:0 var(--padr) 28px var(--pad);-webkit-overfl
 .hc .hr{color:var(--sky);font-size:13.5px;min-height:16px}
 .hc .ico{width:34px;height:34px}
 @media (max-width:1400px){   /* the wall frame itself: 1280 x 720 logical pixels */
- .topbar{gap:6px 8px;padding:8px var(--padr) 6px var(--pad)}
- nav.tabs{gap:6px}nav.tabs button{min-height:46px;padding:0 13px;font-size:17px;border-radius:12px}
- .chips{order:0;flex:0 1 auto;gap:6px;padding-left:9px;border-left:1px solid var(--line)}
- .chips button{min-height:40px;padding:0 11px;font-size:15px}
+ .topbar{gap:6px 7px;padding:8px var(--padr) 6px var(--pad);flex-wrap:nowrap}
+ nav.tabs{gap:5px;flex:0 0 auto}nav.tabs button{min-height:46px;padding:0 10px;font-size:16.5px;border-radius:12px}
+ .sbtn{min-height:40px;width:40px}.sbar{padding-left:9px;gap:6px}.sbar input{min-height:40px;font-size:17px}
+ .chips{order:0;flex:0 1 auto;gap:5px;padding-left:8px;border-left:1px solid var(--line)}
+ .chips button{min-height:40px;padding:0 9px;font-size:15px}
  .bclock{font-size:21px}
- .nowwx{min-height:46px;padding:0 10px;gap:6px}.nowwx b{font-size:22px}.nowwx .ico{width:28px;height:28px}
+ .bclock{font-size:20px}
+ .nowwx{min-height:46px;padding:0 9px;gap:5px}.nowwx b{font-size:22px}.nowwx .ico{width:28px;height:28px}
  .done{min-height:46px;padding:0 13px}.done span{display:none}
  .day{margin:2px 0 14px}.dayh{margin-bottom:6px;padding:3px 0 6px}.dayh h2{font-size:23px}.dayh .dw{font-size:15px}
  .grid{grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:8px}
@@ -157,6 +165,11 @@ main{flex:1;overflow-y:auto;padding:0 var(--padr) 28px var(--pad);-webkit-overfl
       <button data-f="music" aria-pressed="false">Music</button>
       <button data-f="other" aria-pressed="false">Not music</button>
     </div>
+    <button class="sbtn" id="sbtn" aria-label="Search events"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg></button>
+    <div class="sbar" id="sbar" style="display:none">
+      <input id="q" type="text" inputmode="search" enterkeyhint="search" placeholder="Search bands, venues, kinds of music" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Search events">
+      <button class="sbtn" id="qx" aria-label="Close search"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
     <div class="spacer"></div>
     <div class="bclock" id="bdate"></div>
     <div class="nowwx" id="bnow"></div>
@@ -189,7 +202,7 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return
 /* ---------- modes ---------- */
 var mode="paint",idleT=null,peek=false;
 function show(m){if(m!=="browse"&&typeof pageStale!=="undefined"&&pageStale){location.reload();return}mode=m;["paint","browse","night"].forEach(function(id){var el=$(id),on=id===m;el.classList.toggle("hidden",!on);el.setAttribute("aria-hidden",on?"false":"true")});
-  qrClose();if(m==="browse"){moreDay=null;render();$("list").scrollTop=0;wxMaybe(CONFIG.weatherTapSeconds)}armIdle()}
+  qrClose();if(m==="browse"){moreDay=null;searchOn=false;syncBar();render();$("list").scrollTop=0;wxMaybe(CONFIG.weatherTapSeconds)}armIdle()}
 function isNight(n){return n.h>=CONFIG.nightStart||n.h<CONFIG.nightEnd}
 function armIdle(){clearTimeout(idleT);if(mode!=="browse")return;
   idleT=setTimeout(function(){peek=false;show(isNight(now())?"night":"paint")},(peek?CONFIG.peekSeconds:CONFIG.idleSeconds)*1000)}
@@ -223,10 +236,16 @@ function todayWx(iso){var d=(DATA.weather&&DATA.weather.days)||[];for(var i=0;i<
 setInterval(tick,15000);
 
 /* ---------- browse ---------- */
-var tab="today",filt="all",expanded={},moreDay=null,moreY=0;
-document.querySelectorAll("nav.tabs button").forEach(function(b){b.addEventListener("click",function(){tab=b.dataset.tab;moreDay=null;
-  document.querySelectorAll("nav.tabs button").forEach(function(x){x.setAttribute("aria-selected",x===b?"true":"false")});
-  $("chips").style.display=(tab==="weather"||tab==="eat")?"none":"flex";render();$("list").scrollTop=0;if(tab==="weather")wxMaybe(CONFIG.weatherTapSeconds)})});
+var tab="today",filt="all",expanded={},moreDay=null,moreY=0,searchOn=false,q="";
+function syncBar(){$("sbar").style.display=searchOn?"flex":"none";$("sbtn").style.display=searchOn?"none":"";
+  $("chips").style.display=(searchOn||tab==="weather"||tab==="eat")?"none":"flex";
+  document.querySelectorAll("nav.tabs button").forEach(function(x){x.setAttribute("aria-selected",(!searchOn&&x.dataset.tab===(tab||"today"))?"true":"false")})}
+$("sbtn").addEventListener("click",function(){searchOn=true;moreDay=null;q=$("q").value="";syncBar();render();$("list").scrollTop=0;$("q").focus()});
+$("qx").addEventListener("click",function(){searchOn=false;$("q").blur();syncBar();render();$("list").scrollTop=0});
+$("q").addEventListener("input",function(){q=$("q").value;armIdle();render();$("list").scrollTop=0});
+$("q").addEventListener("keydown",function(e){if(e.key==="Enter")$("q").blur()});
+document.querySelectorAll("nav.tabs button").forEach(function(b){b.addEventListener("click",function(){tab=b.dataset.tab;moreDay=null;searchOn=false;
+  syncBar();render();$("list").scrollTop=0;if(tab==="weather")wxMaybe(CONFIG.weatherTapSeconds)})});
 document.querySelectorAll("#chips button").forEach(function(b){b.addEventListener("click",function(){filt=b.dataset.f;
   document.querySelectorAll("#chips button").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false")});render()})});
 function pass(e){if(filt==="gig")return e.src==="gig"||e.src==="both";if(filt==="ntc")return e.src==="ntc"||e.src==="both";
@@ -234,18 +253,33 @@ function pass(e){if(filt==="gig")return e.src==="gig"||e.src==="both";if(filt===
 function range(n){if(tab==="today")return[n.iso];
   if(tab==="week"){var r=[];for(var i=0;i<7;i++)r.push(addDays(n.iso,i));return r}
   var start=n.dow===0?5:(n.dow>=5?-(n.dow-5):5-n.dow);var out=[];for(var j=0;j<3;j++){var d=addDays(n.iso,start+j);if(d>=n.iso)out.push(d)}return out}
-function evHTML(e){var c=CAT[e.cat]||CAT.music;
+function evHTML(e,alt){var c=CAT[e.cat]||CAT.music;
   var src=e.src==="gig"?"Gig list":e.src==="both"?"Now That's Cincy · Gig list":"Now That's Cincy";
   return '<div class="ev"><div class="t'+(e.time?"":" na")+'">'+(e.time?esc(e.time.replace(":00 "," ")):"See venue")+'</div><div class="b"><div class="ti">'+esc(e.title)+'</div><div class="v">'+esc(e.venue)+(e.genre?" · "+esc(e.genre):"")+'</div><div class="tags">'+
-   (e.tier==="FREE"?'<span class="tag free">Free</span>':"")+'<span class="tag"><span class="dot" style="background:'+c[1]+'"></span>'+c[0]+'</span><span class="tag">'+src+'</span></div></div></div>'}
+   (e.tier==="FREE"?'<span class="tag free">Free</span>':"")+'<span class="tag"><span class="dot" style="background:'+c[1]+'"></span>'+c[0]+'</span><span class="tag">'+src+'</span>'+(alt===true?'<span class="tag alt">More page</span>':"")+'</div></div></div>'}
 /* everything that did not make a day's main list (DATA.more), for the "more" page */
 function extras(d,n){return(DATA.more||[]).filter(function(e){return e.date===d&&pass(e)&&(d!==n.iso||!e.time||e.sort>=n.mins-90)})}
 function renderMore(n,L){var d=moreDay,evs=extras(d,n);
   var html='<section class="day"><div class="dayh"><button class="back" id="moreBack"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg>Back</button><h2>Everything else · '+esc(niceDate(d,true))+'</h2><span class="dw">'+evs.length+' more</span></div>';
-  html+=evs.length?'<div class="grid">'+evs.map(evHTML).join("")+'</div>':'<div class="empty">Nothing else listed for this filter.</div>';
+  html+=evs.length?'<div class="grid">'+evs.map(function(e){return evHTML(e)}).join("")+'</div>':'<div class="empty">Nothing else listed for this filter.</div>';
   html+='</section><div class="foot">These are the listings that did not make the main list: trivia, classes, DJ nights and whatever there was no room for. Read '+esc(DATA.events_read)+'.</div>';
   L.innerHTML=html;$("moreBack").addEventListener("click",function(){moreDay=null;render();L.scrollTop=moreY})}
+/* search: every listing the frame holds, main lists and "more" pages, all days */
+function fold(s){s=String(s||"").toLowerCase();try{s=s.normalize("NFD").replace(/[\u0300-\u036f]/g,"")}catch(e){}return s.replace(/['\u2019]/g,"")}
+function renderSearch(n,L){var words=fold(q).split(/\s+/).filter(Boolean);
+  if(!words.length){L.innerHTML='<div class="empty">Type a band, a venue or a kind of music. Search covers every listing for the coming days, including the ones on the "more" pages.</div>';return}
+  var hits=[];function scan(list,alt){(list||[]).forEach(function(e){if(e.date<n.iso||(e.date===n.iso&&e.time&&e.sort<n.mins-90))return;
+    var hay=fold([e.title,e.venue,e.genre,(CAT[e.cat]||CAT.music)[0],niceDate(e.date,true),e.tier==="FREE"?"free":""].join(" "));
+    for(var i=0;i<words.length;i++)if(hay.indexOf(words[i])<0)return;hits.push({e:e,alt:alt})})}
+  scan(DATA.events,false);scan(DATA.more,true);
+  hits.sort(function(a,b){return a.e.date<b.e.date?-1:a.e.date>b.e.date?1:a.e.sort-b.e.sort});
+  if(!hits.length){L.innerHTML='<div class="empty">Nothing found for "'+esc(q)+'" in the coming days.</div>';return}
+  var html='<div class="foot" style="margin-top:4px">'+hits.length+' found for "'+esc(q)+'"</div>',d="";
+  hits.forEach(function(h){if(h.e.date!==d){html+=(d?'</div></section>':"")+'<section class="day"><div class="dayh"><h2>'+(h.e.date===n.iso?"Today · ":"")+esc(niceDate(h.e.date,true))+'</h2></div><div class="grid">';d=h.e.date}
+    html+=evHTML(h.e,h.alt)});
+  L.innerHTML=html+'</div></section>'}
 function render(){var n=now(),L=$("list");
+  if(searchOn){renderSearch(n,L);return}
   if(tab==="weather"){L.innerHTML=weatherHTML(n);return}
   if(tab==="eat"){L.innerHTML=eatHTML();return}
   if(moreDay){renderMore(n,L);return}
@@ -256,7 +290,7 @@ function render(){var n=now(),L=$("list");
     var cap=tab==="today"?evs.length:12,key=tab+d,shown=expanded[key]?evs:evs.slice(0,cap);
     html+='<section class="day"><div class="dayh"><h2>'+(d===n.iso?"Today · ":"")+esc(niceDate(d,true))+'</h2>'+(w?'<span class="dw">'+w.hi+'° / '+w.lo+'° · '+esc(w.desc)+'</span>':"")+'</div>';
     var bored=(ex&&shown.length===evs.length)?'<button class="ev bored" data-d="'+d+'"><div class="t">+</div><div class="b"><div class="ti">im really bored...give me more</div><div class="v">'+ex+' more for '+esc(niceDate(d))+'</div></div></button>':"";
-    html+=(evs.length||bored)?'<div class="grid">'+shown.map(evHTML).join("")+bored+'</div>':'<div class="empty">Nothing listed'+(d>lastDate?" yet. This day isn't in the latest update.":" for this filter.")+'</div>';
+    html+=(evs.length||bored)?'<div class="grid">'+shown.map(function(e){return evHTML(e)}).join("")+bored+'</div>':'<div class="empty">Nothing listed'+(d>lastDate?" yet. This day isn't in the latest update.":" for this filter.")+'</div>';
     if(shown.length<evs.length)html+='<button class="more" data-k="'+key+'">Show '+(evs.length-shown.length)+' more</button>';
     html+='</section>'});
   if(tab==="weekend"&&days.length)html='<div class="foot" style="margin-top:4px">'+esc(niceDate(days[0])+" to "+niceDate(days[days.length-1]))+'</div>'+html;
