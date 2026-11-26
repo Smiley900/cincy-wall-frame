@@ -68,6 +68,19 @@
   "juniper's|eliza guerra chapbook release w/ millie ferguson, katrina eresman, kay e. bankroft": {
    "show": false,
    "cat": "other"
+  },
+  "the woodward theater|dr. steve taubman's mind magic: a night of laughter and mental miracles": {
+   "cat": "comedy"
+  },
+  "ccm|ccm dance: dance works": {
+   "cat": "theater"
+  },
+  "national underground railroad freedom center|common ground & still moving opening reception": {
+   "cat": "art"
+  },
+  "cincinnati art galleries|panorama of cincinnati art xli": {
+   "show": true,
+   "cat": "art"
   }
  }
 }
