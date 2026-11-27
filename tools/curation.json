@@ -109,6 +109,22 @@
   },
   "taft theatre|whitney cummings": {
    "cat": "comedy"
+  },
+  "kennedy heights arts center|winterfest 2026": {
+   "cat": "holiday"
+  },
+  "kantine biergarten eatery|st. nikolaus party": {
+   "cat": "holiday"
+  },
+  "the drama workshop|the game’s afoot by ken ludwig": {
+   "cat": "theater"
+  },
+  "cincinnati observatory|family astronomy night": {
+   "cat": "family"
+  },
+  "treehouse cincinnati|support for gay, bisexual, trans and questioning men group": {
+   "show": false,
+   "cat": "other"
   }
  }
 }
