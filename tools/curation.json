@@ -81,6 +81,34 @@
   "cincinnati art galleries|panorama of cincinnati art xli": {
    "show": true,
    "cat": "art"
+  },
+  "center for addiction treatment|on the front lines cincinnati monthly s.w.a.p. (socials with a purpose)": {
+   "cat": "other"
+  },
+  "joseph-beth cincinnati|sheila williams in conversation with michelle hopkins discussing and signing daughters of the wind": {
+   "cat": "other"
+  },
+  "northside tavern|pitch night for \"trueteen\"": {
+   "cat": "other"
+  },
+  "hybrid moments|eclectoid film festival - film scores performed live": {
+   "cat": "film"
+  },
+  "northern row brewery|hidden brewery caverns tour": {
+   "cat": "other"
+  },
+  "cincinnati association for the blind & visually impaired|art equals creative gathering": {
+   "cat": "art"
+  },
+  "cincinnati art museum|rec reads": {
+   "show": false,
+   "cat": "other"
+  },
+  "pique gallery|test patterns: finale event.": {
+   "cat": "art"
+  },
+  "taft theatre|whitney cummings": {
+   "cat": "comedy"
   }
  }
 }
