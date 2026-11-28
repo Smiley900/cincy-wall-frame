@@ -76,7 +76,8 @@
    "cat": "theater"
   },
   "national underground railroad freedom center|common ground & still moving opening reception": {
-   "cat": "art"
+   "cat": "art",
+   "show": true
   },
   "cincinnati art galleries|panorama of cincinnati art xli": {
    "show": true,
@@ -111,7 +112,8 @@
    "cat": "comedy"
   },
   "kennedy heights arts center|winterfest 2026": {
-   "cat": "holiday"
+   "cat": "holiday",
+   "show": true
   },
   "kantine biergarten eatery|st. nikolaus party": {
    "cat": "holiday"
@@ -120,11 +122,30 @@
    "cat": "theater"
   },
   "cincinnati observatory|family astronomy night": {
-   "cat": "family"
+   "cat": "family",
+   "show": true
   },
   "treehouse cincinnati|support for gay, bisexual, trans and questioning men group": {
    "show": false,
    "cat": "other"
+  },
+  "essex studios|essex studios artwalk": {
+   "show": true,
+   "cat": "art"
+  },
+  "goebel park|holiday cov craft": {
+   "show": true,
+   "cat": "holiday"
+  },
+  "crestview presbyterian church|cincinnati brass band, young professionals choral collective": {
+   "show": true,
+   "cat": "music"
+  },
+  "taft theatre|professor brian cox": {
+   "cat": "other"
+  },
+  "the carnegie|lydia smith: artist talk on cyclorama": {
+   "cat": "art"
   }
  }
 }
